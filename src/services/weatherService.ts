@@ -77,6 +77,6 @@ export async function fetchWeatherByCoords(lat: number, lon: number): Promise<We
         return transformWeatherData(response.data);
 
     } catch (error: any) {
-        
+        throw new Error("Failed to fetch weather for your location.");
     }
 }
