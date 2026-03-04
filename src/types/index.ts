@@ -57,18 +57,18 @@ export type WeatherAPIResponse = {
 // cleaned-up data we got from the API response
 export type WeatherData = {
     cityName: string;
+
+    // country code
     country: string;
 
     temperature: number;
     feels_like: number;
 
     humidity: number;
-
     pressure: number;
 
     // e.g. Rain
     condition: string;
-
     // e.g. light rain
     description: string;
 

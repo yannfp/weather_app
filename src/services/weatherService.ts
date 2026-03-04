@@ -61,3 +61,22 @@ export async function fetchWeatherByCity(city: string): Promise<WeatherData> {
         throw new Error("Failed to fetch weather. Check your internet connection.");
     }
 }
+
+export async function fetchWeatherByCoords(lat: number, lon: number): Promise<WeatherData> {
+    try {
+        const response = await axios.get<WeatherAPIResponse>(`${BASE_URL}/weather/`,
+            {
+                params: {
+                    lat,
+                    lon,
+                    appid: API_KEY,
+                    units: "metric",
+                },
+            });
+
+        return transformWeatherData(response.data);
+
+    } catch (error: any) {
+        
+    }
+}
