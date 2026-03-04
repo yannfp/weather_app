@@ -42,3 +42,13 @@ export async function addLocation(location: NewLocation): Promise<SavedLocation>
 
     return data;
 }
+
+// removed a saved location
+export async function deleteLocation(locationId: string): Promise<void> {
+    const { error } = await supabase
+        .from("saved_locations")
+        .delete()
+        .eq("id", locationId);
+
+    if (error) throw new Error(error.message);
+}
