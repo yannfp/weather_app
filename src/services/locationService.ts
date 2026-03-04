@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { SavedLocation, NewLocation } from "../types";
+import {use} from "react";
 
 // get all saved location for the logged-in user
 export async function getSavedLocations(): Promise<SavedLocation[]> {
@@ -13,4 +14,31 @@ export async function getSavedLocations(): Promise<SavedLocation[]> {
     if (error) throw new Error(error.message);
 
     return data || [];
+}
+
+// add a new location for the logged-in user
+export async function addLocation(location: NewLocation): Promise<SavedLocation> {
+
+    // retrieve the user that wants to add a new location
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("You must be logged in to save a new location.");
+
+    const { data, error } = await supabase
+        .from("saved_locations")
+        .insert({
+            ...location,
+            userId: user.id,
+        })
+        .select()
+        .single(); // return the created location
+
+    if (error) {
+        if (error.code == "23505") {// violation of unique entry in the database
+            throw new Error("This location is already saved.");
+        }
+
+        throw new Error(error.message);
+    }
+
+    return data;
 }
