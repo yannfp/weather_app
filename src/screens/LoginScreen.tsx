@@ -49,7 +49,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             if (isSignUp) {
                 await signUp(email.trim(), password);
                 Alert.alert("Success!", "Account created. You can now log in.");
-                setSignUp(false);
+                setIsSignUp(false);
             } else {
                 await signIn(email.trim(), password);
             }
@@ -162,6 +162,13 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
 
+    button: {
+        backgroundColor: "#3498DB",
+        borderRadius: 12,
+        padding: 16,
+        alignItems: "center",
+        marginBottom: 16,
+    },
     buttonDisabled: { opacity: 0.6 },
     buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 
