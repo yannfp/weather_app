@@ -62,7 +62,7 @@ export type WeatherData = {
     country: string;
 
     temperature: number;
-    feels_like: number;
+    feelsLike: number;
 
     humidity: number;
     pressure: number;

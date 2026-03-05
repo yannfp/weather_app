@@ -13,7 +13,7 @@ function transformWeatherData(raw: WeatherAPIResponse): WeatherData {
         country: raw.sys.country,
 
         temperature: Math.round(raw.main.temp),
-        feels_like: Math.round(raw.main.feels_like),
+        feelsLike: Math.round(raw.main.feels_like),
 
         humidity: raw.main.humidity,
         pressure: raw.main.pressure,
