@@ -1,182 +1,277 @@
 import React, { useState } from "react";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-    ActivityIndicator,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useAuth } from "../context/AuthContext";
-import { RootStackParamsList } from "../types";
+import { RootStackParamList } from "../types";
 
 type LoginScreenProps = {
-    navigation: NativeStackNavigationProp<RootStackParamsList, "Login">;
-}
+  navigation: NativeStackNavigationProp<RootStackParamList, "Login">;
+};
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+const LoginScreen: React.FC<LoginScreenProps> = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
-    // init the fields of the screen to empty at the start
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [isSignUp, setIsSignUp] = useState(false);
+  const { signIn, signUp } = useAuth();
 
-    const { signIn, signUp } = useAuth();
+  const handleSubmit = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Missing fields", "Please enter your email and password.");
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert("Too short", "Password must be at least 6 characters.");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      if (isSignUp) {
+        await signUp(email.trim(), password);
+        Alert.alert("Account created", "You can now sign in.");
+        setIsSignUp(false);
+      } else {
+        await signIn(email.trim(), password);
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const handleSubmit = async () => {
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <View style={styles.inner}>
 
-        // basic validation about the email and password
-        if (!email.trim() || !password.trim()) {
-            Alert.alert("Error", "Please enter your email and password");
-            return;
-        }
+        {/* Top brand area */}
+        <View style={styles.brandArea}>
+          <View style={styles.iconWrapper}>
+            <Text style={styles.iconEmoji}>🌤</Text>
+          </View>
+          <Text style={styles.appName}>Skies</Text>
+          <Text style={styles.tagline}>Weather, beautifully simple.</Text>
+        </View>
 
-        if (password.length < 6) {
-            Alert.alert("Error", "Password must be at least 6 characters");
-            return;
-        }
+        {/* Form card */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>
+            {isSignUp ? "Create account" : "Welcome back"}
+          </Text>
 
-        setIsLoading(true);
+          {/* Email */}
+          <View style={styles.fieldWrapper}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={[
+                styles.input,
+                focusedField === "email" && styles.inputFocused,
+              ]}
+              placeholder="you@example.com"
+              placeholderTextColor="#B0B8C4"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              onFocus={() => setFocusedField("email")}
+              onBlur={() => setFocusedField(null)}
+            />
+          </View>
 
-        try {
+          {/* Password */}
+          <View style={styles.fieldWrapper}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              style={[
+                styles.input,
+                focusedField === "password" && styles.inputFocused,
+              ]}
+              placeholder="Min. 6 characters"
+              placeholderTextColor="#B0B8C4"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              onFocus={() => setFocusedField("password")}
+              onBlur={() => setFocusedField(null)}
+            />
+          </View>
 
-            // if the user is signing up call the function to do so
-            if (isSignUp) {
-                await signUp(email.trim(), password);
-                Alert.alert("Success!", "Account created. You can now log in.");
-                setIsSignUp(false);
-            } else {
-                await signIn(email.trim(), password);
-            }
-        } catch (error: any) {
-            Alert.alert("Error", error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+          {/* Submit button */}
+          <TouchableOpacity
+            style={[styles.button, isLoading && styles.buttonLoading]}
+            onPress={handleSubmit}
+            disabled={isLoading}
+            activeOpacity={0.85}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text style={styles.buttonText}>
+                {isSignUp ? "Create Account" : "Sign In"}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
 
-    return (
-        // avoids the keyboard to hide inputs on IOS
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+        {/* Toggle auth mode */}
+        <TouchableOpacity
+          onPress={() => setIsSignUp(!isSignUp)}
+          style={styles.toggleWrapper}
         >
-            <View style={styles.inner}>
+          <Text style={styles.toggleText}>
+            {isSignUp ? "Already have an account? " : "Don't have an account? "}
+            <Text style={styles.toggleAction}>
+              {isSignUp ? "Sign in" : "Sign up"}
+            </Text>
+          </Text>
+        </TouchableOpacity>
 
-                {/* Header */}
-                <Text style={styles.emoji}>🌤️</Text>
-                <Text style={styles.title}>WeatherApp</Text>
-                <Text style={styles.subtitle}>{isSignUp ? "Create an account" : "Welcome back"}</Text>
-
-                {/* Email Input */}
-                <TextInput
-                    style={styles.input}
-                    placeholder="Email address"
-                    placeholderTextColor="#999"
-
-                    value={email}
-
-                    onChangeText={setEmail}
-
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                />
-
-                {/* Password Input */}
-                <TextInput
-                    style={styles.input}
-                    placeholder="Password"
-                    placeholderTextColor="#999"
-
-                    value={password}
-
-                    onChangeText={setPassword}
-
-                    // hides password when typing
-                    secureTextEntry={true}
-                />
-
-                {/* Submit Button */}
-                <TouchableOpacity
-                    style={[styles.button, isLoading && styles.buttonDisabled]}
-                    onPress={handleSubmit}
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.buttonText}>
-                            {isSignUp ? "Create account" : "Sign In"}
-                        </Text>
-                    )}
-                </TouchableOpacity>
-
-                {/* Toggle between Login and Register */}
-                <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)}>
-                    <Text style={styles.toggleText}>
-                        {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign Up"}
-                    </Text>
-                </TouchableOpacity>
-            </View>
-        </KeyboardAvoidingView>
-    );
+      </View>
+    </KeyboardAvoidingView>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#EBF5FB" },
+  container: {
+    flex: 1,
+    backgroundColor: "#F7F8FA",
+  },
+  inner: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+  },
 
-    inner: {
-        flex: 1,
-        justifyContent: "center",
-        paddingHorizontal: 30,
-    },
+  // Brand
+  brandArea: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  iconWrapper: {
+    width: 72,
+    height: 72,
+    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  iconEmoji: {
+    fontSize: 36,
+  },
+  appName: {
+    fontSize: 32,
+    fontWeight: "700",
+    color: "#1A202C",
+    letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  tagline: {
+    fontSize: 15,
+    color: "#718096",
+    letterSpacing: 0.1,
+  },
 
-    emoji: { fontSize: 64, textAlign: "center", marginBottom: 0 },
+  // Card
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 28,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.07,
+    shadowRadius: 24,
+    elevation: 5,
+    marginBottom: 20,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1A202C",
+    marginBottom: 24,
+    letterSpacing: -0.3,
+  },
 
-    title: {
-        fontSize: 36,
-        fontWeight: "bold",
-        textAlign: "center",
-        color: "#2C3E50",
-        marginBottom: 4
-    },
+  // Fields
+  fieldWrapper: {
+    marginBottom: 18,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#4A5568",
+    marginBottom: 8,
+    letterSpacing: 0.2,
+    textTransform: "uppercase",
+  },
+  input: {
+    backgroundColor: "#F7F8FA",
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: "#1A202C",
+    borderWidth: 1.5,
+    borderColor: "#EDF2F7",
+  },
+  inputFocused: {
+    borderColor: "#2D3748",
+    backgroundColor: "#FFFFFF",
+  },
 
-    subtitle: {
-        fontSize: 16,
-        textAlign: "center",
-        color: "#7F8C8D",
-        marginBottom: 40,
-    },
+  // Button
+  button: {
+    backgroundColor: "#1A202C",
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  buttonLoading: {
+    opacity: 0.7,
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+    letterSpacing: 0.2,
+  },
 
-    input: {
-        backgroundColor: "#3498DB",
-        borderRadius: 12,
-        padding: 16,
-        alignItems: "center",
-        marginBottom: 16,
-    },
-
-    button: {
-        backgroundColor: "#3498DB",
-        borderRadius: 12,
-        padding: 16,
-        alignItems: "center",
-        marginBottom: 16,
-    },
-    buttonDisabled: { opacity: 0.6 },
-    buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-
-    toggleText: {
-        textAlign: "center",
-        color: "#3498DB",
-        fontSize: 14,
-    },
+  // Toggle
+  toggleWrapper: {
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  toggleText: {
+    fontSize: 14,
+    color: "#718096",
+  },
+  toggleAction: {
+    color: "#1A202C",
+    fontWeight: "600",
+  },
 });
 
 export default LoginScreen;

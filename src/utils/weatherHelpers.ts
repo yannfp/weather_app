@@ -1,86 +1,96 @@
 import { WeatherTheme, ThemeColors } from "../types";
 
-// set-ups the dynamic theme depending on the weather condition
 export function getThemeFromWeather(condition: string): WeatherTheme {
-
-    // allows an unsensitive case comparison
-    const c = condition.toLowerCase();
-
-    if (c.includes("clear") || c.includes("sunny")) return "sunny";
-    if (c.includes("cloud") || c.includes("overcast")) return "cloudy";
-    if (c.includes("rain") || c.includes("drizzle") || c.includes("mist")) return "rainy";
-    if (c.includes("snow") || c.includes("sleet") || c.includes("ice")) return "snowy";
-    if (c.includes("thunder") || c.includes("storm")) return "stormy";
-    return "default";
+  const c = condition.toLowerCase();
+  if (c.includes("clear") || c.includes("sun")) return "sunny";
+  if (c.includes("cloud") || c.includes("overcast")) return "cloudy";
+  if (c.includes("rain") || c.includes("drizzle") || c.includes("mist")) return "rainy";
+  if (c.includes("snow") || c.includes("sleet") || c.includes("ice")) return "snowy";
+  if (c.includes("thunder") || c.includes("storm")) return "stormy";
+  return "default";
 }
 
-// color palettes for each condition
+// ─────────────────────────────────────────────
+// Premium minimal color palettes per weather
+// ─────────────────────────────────────────────
 export const THEME_COLORS: Record<WeatherTheme, ThemeColors> = {
-    sunny: {
-        primary: "#FF8C00",
-        secondary: "#FFD700",
-        background: "#FFF8E7",
-        cardBackground: "#FFF3CD",
-        text: "#2C1810",
-        subText: "#7B5E3A",
-        accent: "#FF6B35",
-    },
-    cloudy: {
-        primary: "#6B7C93",
-        secondary: "#95A5B8",
-        background: "#F0F3F7",
-        cardBackground: "#E8ECF0",
-        text: "#2C3E50",
-        subText: "#5D6D7E",
-        accent: "#4A90A4",
-    },
-    rainy: {
-        primary: "#2980B9",
-        secondary: "#5DADE2",
-        background: "#EBF5FB",
-        cardBackground: "#D6EAF8",
-        text: "#1B2631",
-        subText: "#2E86C1",
-        accent: "#1A78C2",
-    },
-    snowy: {
-        primary: "#5DBBFF",
-        secondary: "#AED6F1",
-        background: "#F4F9FF",
-        cardBackground: "#EBF5FF",
-        text: "#1A3347",
-        subText: "#4B8EC8",
-        accent: "#85C1E9",
-    },
-    stormy: {
-        primary: "#4A235A",
-        secondary: "#7D3C98",
-        background: "#F4ECF7",
-        cardBackground: "#E8DAEF",
-        text: "#1B1B2F",
-        subText: "#6C3483",
-        accent: "#8E44AD",
-    },
-    default: {
-        primary: "#3498DB",
-        secondary: "#85C1E9",
-        background: "#EBF5FB",
-        cardBackground: "#FFFFFF",
-        text: "#2C3E50",
-        subText: "#7F8C8D",
-        accent: "#2980B9",
-    },
+  sunny: {
+    primary: "#E87C2E",
+    secondary: "#F4A55A",
+    background: "#FDFAF5",
+    cardBackground: "#FFFFFF",
+    text: "#1A1208",
+    subText: "#9C7B4E",
+    accent: "#F4C27F",
+  },
+  cloudy: {
+    primary: "#4A5568",
+    secondary: "#718096",
+    background: "#F7F8FA",
+    cardBackground: "#FFFFFF",
+    text: "#1A202C",
+    subText: "#718096",
+    accent: "#CBD5E0",
+  },
+  rainy: {
+    primary: "#2B6CB0",
+    secondary: "#4299E1",
+    background: "#F0F5FF",
+    cardBackground: "#FFFFFF",
+    text: "#1A2942",
+    subText: "#4A7BAF",
+    accent: "#BEE3F8",
+  },
+  snowy: {
+    primary: "#3182CE",
+    secondary: "#63B3ED",
+    background: "#F7FBFF",
+    cardBackground: "#FFFFFF",
+    text: "#1A2F47",
+    subText: "#5B9FC7",
+    accent: "#E8F4FD",
+  },
+  stormy: {
+    primary: "#553C9A",
+    secondary: "#805AD5",
+    background: "#F5F0FF",
+    cardBackground: "#FFFFFF",
+    text: "#1A0F2E",
+    subText: "#7B5EA7",
+    accent: "#E9D8FD",
+  },
+  default: {
+    primary: "#2D3748",
+    secondary: "#4A5568",
+    background: "#F7F8FA",
+    cardBackground: "#FFFFFF",
+    text: "#1A202C",
+    subText: "#718096",
+    accent: "#EDF2F7",
+  },
 };
 
-// for each condition get an emoji
 export function getWeatherEmoji(condition: string): string {
-    const c = condition.toLowerCase();
-    if (c.includes("clear")) return "☀️";
-    if (c.includes("cloud")) return "☁️";
-    if (c.includes("rain")) return "🌧️";
-    if (c.includes("drizzle")) return "🌦️";
-    if (c.includes("thunder")) return "⛈️";
-    if (c.includes("snow")) return "❄️";
-    if (c.includes("mist") || c.includes("fog")) return "🌫️";
-    return "🌤️";
+  const c = condition.toLowerCase();
+  if (c.includes("clear")) return "☀️";
+  if (c.includes("cloud")) return "☁️";
+  if (c.includes("rain")) return "🌧️";
+  if (c.includes("drizzle")) return "🌦️";
+  if (c.includes("thunder")) return "⛈️";
+  if (c.includes("snow")) return "❄️";
+  if (c.includes("mist") || c.includes("fog")) return "🌫️";
+  return "🌤️";
+}
+
+// Returns a subtle gradient pair for background based on theme
+export function getThemeGradient(theme: WeatherTheme): [string, string] {
+  const gradients: Record<WeatherTheme, [string, string]> = {
+    sunny:   ["#FFF8ED", "#FDE9C5"],
+    cloudy:  ["#F7F8FA", "#E8ECF2"],
+    rainy:   ["#EEF4FF", "#D6E8FA"],
+    snowy:   ["#F0F8FF", "#DCF0FD"],
+    stormy:  ["#F2EEFF", "#E0D0FF"],
+    default: ["#F7F8FA", "#EDF2F7"],
+  };
+  return gradients[theme];
 }

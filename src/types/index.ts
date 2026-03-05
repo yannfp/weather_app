@@ -131,7 +131,7 @@ export type AuthUser = {
 
 // defines the menu of available screens of the app
 // precises what information they expect to receive
-export type RootStackParamsList = {
+export type RootStackParamList = {
     Login: undefined;
     Register: undefined;
     Home: undefined;
