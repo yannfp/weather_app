@@ -16,7 +16,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import {fetchWeatherByCity, fetchWeatherByCoords} from "../services/weatherService";
-import { getSavedLocations, deleteLocation } from "../services/locationService";
+import {getSavedLocations, deleteLocation, addLocation} from "../services/locationService";
 import { getThemeFromWeather, getWeatherEmoji } from "../utils/weatherHelpers";
 import WeatherCard from "../components/WeatherCard";
 import { WeatherData, SavedLocation, RootStackParamList } from "../types";
@@ -84,6 +84,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           setCurrentWeather(weather);
           setSelectedCity(weather.cityName);
           setTheme(getThemeFromWeather(weather.condition));
+
+          // add the default location of the user to the database
+          try {
+            await addLocation({
+              city_name: weather.cityName,
+              country_code: weather.condition,
+              lat: latitude,
+              lon: longitude,
+            });
+          } catch {
+
+          }
+
         } else {
           // permission to get the location denied by user
           const weather = await fetchWeatherByCity("Hong Kong");
