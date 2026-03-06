@@ -45,11 +45,8 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
         lon: weather.longitude,
       });
 
-      Alert.alert(
-        "Location saved",
-        `${weather.cityName}, ${weather.country} added to your list.`,
-        [{ text: "Done", onPress: () => navigation.goBack() }]
-      );
+      navigation.goBack();
+
     } catch (error: any) {
       Alert.alert("Error", error.message);
     } finally {
