@@ -27,7 +27,7 @@ export async function addLocation(location: NewLocation): Promise<SavedLocation>
         .from("saved_locations")
         .insert({
             ...location,
-            userId: user.id,
+            user_id: user.id,
         })
         .select()
         .single(); // return the created location

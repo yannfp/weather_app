@@ -27,26 +27,36 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
   const [focused, setFocused] = useState(false);
 
   const handleAdd = async () => {
+
+    console.log("1. Button pressed, city:", cityName.trim()); // ADD
     const trimmed = cityName.trim();
     if (!trimmed) {
       Alert.alert("Missing city", "Please enter a city name.");
       return;
     }
     setLoading(true);
+
     try {
+      console.log("2. Fetching weather..."); // ADD
       const weather = await fetchWeatherByCity(trimmed);
+      console.log("3. Weather OK:", weather.cityName); // ADD
+
+      console.log("4. Saving to DB...");
       await addLocation({
         city_name: weather.cityName,
         country_code: weather.country,
         lat: weather.latitude,
         lon: weather.longitude,
       });
+      console.log("5. Saved!"); // ADD
+
       Alert.alert(
         "Location saved",
         `${weather.cityName}, ${weather.country} added to your list.`,
         [{ text: "Done", onPress: () => navigation.goBack() }]
       );
     } catch (error: any) {
+      console.log("ERROR:", error.message); // ADD
       Alert.alert("Error", error.message);
     } finally {
       setLoading(false);

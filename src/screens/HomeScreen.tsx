@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+
 import {
   ActivityIndicator,
   Alert,
@@ -9,15 +10,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { fetchWeatherByCity } from "../services/weatherService";
+import {fetchWeatherByCity, fetchWeatherByCoords} from "../services/weatherService";
 import { getSavedLocations, deleteLocation } from "../services/locationService";
 import { getThemeFromWeather, getWeatherEmoji } from "../utils/weatherHelpers";
 import WeatherCard from "../components/WeatherCard";
 import { WeatherData, SavedLocation, RootStackParamList } from "../types";
+
+// user location
+import * as Location from "expo-location";
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, "Home">;
@@ -57,22 +62,56 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   };
 
   useEffect(() => {
+
     const init = async () => {
+
       setLoading(true);
-      const locs = await loadLocations();
+
       try {
-        const w = await fetchWeatherByCity(selectedCity);
-        setCurrentWeather(w);
-        setTheme(getThemeFromWeather(w.condition));
+
+        // ask user to access their location
+        const { status } = await Location.requestForegroundPermissionsAsync();
+
+        if (status == "granted")
+        {
+          // get the location with GPS coordinates
+          const location = await Location.getCurrentPositionAsync({});
+          const { latitude, longitude } = location.coords;
+
+          // fetch the weather of the city
+          const weather = await fetchWeatherByCoords(latitude, longitude);
+
+          setCurrentWeather(weather);
+          setSelectedCity(weather.cityName);
+          setTheme(getThemeFromWeather(weather.condition));
+        } else {
+          // permission to get the location denied by user
+          const weather = await fetchWeatherByCity("Hong Kong");
+
+          setCurrentWeather(weather);
+          setSelectedCity(weather.cityName);
+          setTheme(getThemeFromWeather(weather.condition));
+        }
       } catch (e: any) {
-        Alert.alert("Error", e.message);
+
+        // gps failed back to default location
+        const weather = await fetchWeatherByCity("Hong Kong");
+
+        setCurrentWeather(weather);
+        setSelectedCity(weather.cityName);
+        setTheme(getThemeFromWeather(weather.condition));
       }
-      if (locs.length > 0) {
-        const wm = await loadAllWeather(locs);
-        setWeatherMap(wm);
+
+      // load all saved locations
+      const locations = await loadLocations();
+      if (locations.length > 0) {
+        const weatherMap = await loadAllWeather(locations);
+        setWeatherMap(weatherMap);
       }
+
       setLoading(false);
     };
+
     init();
   }, []);
 

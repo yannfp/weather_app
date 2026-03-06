@@ -48,9 +48,9 @@ export type WeatherAPIResponse = {
     visibility: number;
 
     // coordinates of the city
-    coordinates: {
-        latitude: number;
-        longitude: number;
+    coord: {
+        lat: number;
+        lon: number;
     };
 };
 
