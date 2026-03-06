@@ -168,6 +168,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     try {
       await deleteLocation(loc.id);
       setLocations((prev) => prev.filter((l) => l.id !== loc.id));
+
+      // If user was currently on this location switch back to the user's current location
+      if (loc.city_name == selectedCity) {
+        await selectCity(currentLocationCity);
+      }
+
     } catch (e: any) {
       Alert.alert("Error", e.message);
     }
@@ -275,7 +281,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 .map((loc) => {
                   const weather = weatherMap[loc.city_name];
                   const isSelected = loc.city_name === selectedCity;
-                  const isCurrentLocation = loc.city_name === selectedCity;
+                  const isCurrentLocation = loc.city_name === currentLocationCity;
 
                   // The row content is the same for both cases
                   const rowContent = (
