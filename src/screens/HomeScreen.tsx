@@ -28,7 +28,6 @@ type HomeScreenProps = {
 };
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-
   const { user, signOut } = useAuth();
   const { colors, setTheme } = useTheme();
 
@@ -52,11 +51,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const loadAllWeather = async (locs: SavedLocation[]) => {
     const wm: Record<string, WeatherData> = {};
     await Promise.all(
-        locs.map(async (loc) => {
-          try {
-            wm[loc.city_name] = await fetchWeatherByCity(loc.city_name);
-          } catch {}
-        })
+      locs.map(async (loc) => {
+        try {
+          wm[loc.city_name] = await fetchWeatherByCity(loc.city_name);
+        } catch {}
+      })
     );
     return wm;
   };
@@ -90,7 +89,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             try {
               await addLocation({
                 city_name: weather.cityName,
-                country_code: weather.country,  // ✅ fixed: was weather.condition
+                country_code: weather.country,
                 lat: latitude,
                 lon: longitude,
               });
@@ -126,16 +125,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   }, []);
 
   useFocusEffect(
-      useCallback(() => {
-        const refresh = async () => {
-          const locs = await loadLocations();
-          if (locs.length > 0) {
-            const wm = await loadAllWeather(locs);
-            setWeatherMap(wm);
-          }
-        };
-        refresh();
-      }, [])
+    useCallback(() => {
+      const refresh = async () => {
+        const locs = await loadLocations();
+        if (locs.length > 0) {
+          const wm = await loadAllWeather(locs);
+          setWeatherMap(wm);
+        }
+      };
+      refresh();
+    }, [])
   );
 
   const onRefresh = async () => {
@@ -173,138 +172,157 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   };
 
   const renderDeleteAction = (loc: SavedLocation) => (
-      <TouchableOpacity
-          style={[styles.deleteAction, { backgroundColor: "#FF3B30" }]}
-          onPress={() => handleDelete(loc)}
-      >
-        <Text style={styles.deleteActionText}>🗑</Text>
-        <Text style={styles.deleteActionLabel}>Remove</Text>
-      </TouchableOpacity>
+    <TouchableOpacity
+      style={[styles.deleteAction, { backgroundColor: "#FF3B30" }]}
+      onPress={() => handleDelete(loc)}
+    >
+      <Text style={styles.deleteActionText}>🗑</Text>
+      <Text style={styles.deleteActionLabel}>Remove</Text>
+    </TouchableOpacity>
   );
 
   if (loading) {
     return (
-        <View style={[styles.centered, { backgroundColor: colors.background }]}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.subText }]}>
-            Fetching weather…
-          </Text>
-        </View>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.subText }]}>
+          Fetching weather…
+        </Text>
+      </View>
     );
   }
 
   return (
-      <ScrollView
-          style={[styles.container, { backgroundColor: colors.background }]}
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                tintColor={colors.primary}
-            />
-          }
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={[styles.greeting, { color: colors.subText }]}>
-              Good {getTimeOfDay()}
-            </Text>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>Weather</Text>
-          </View>
-          <TouchableOpacity
-              onPress={signOut}
-              style={[styles.signOutBtn, { borderColor: colors.accent }]}
-          >
-            <Text style={[styles.signOutText, { color: colors.subText }]}>Sign out</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Main weather card */}
-        {currentWeather && (
-            <WeatherCard
-                cityName={currentWeather.cityName}
-                country={currentWeather.country}
-                temperature={currentWeather.temperature}
-                condition={currentWeather.condition}
-                description={currentWeather.description}
-                humidity={currentWeather.humidity}
-                windSpeed={currentWeather.windSpeed}
-                feelsLike={currentWeather.feelsLike}
-                colors={colors}
-            />
-        )}
-
-        {/* Locations section header */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Saved locations
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={colors.primary}
+        />
+      }
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={[styles.greeting, { color: colors.subText }]}>
+            Good {getTimeOfDay()}
           </Text>
-          <TouchableOpacity
-              onPress={() => navigation.navigate("AddLocation")}
-              style={[styles.addBtn, { backgroundColor: colors.primary }]}
-          >
-            <Text style={styles.addBtnText}>+ Add</Text>
-          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Weather</Text>
         </View>
+        <TouchableOpacity
+          onPress={signOut}
+          style={[styles.signOutBtn, { borderColor: colors.accent }]}
+        >
+          <Text style={[styles.signOutText, { color: colors.subText }]}>Sign out</Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Location list */}
-        {locations.length === 0 ? (
-            <View style={[styles.emptyState, { backgroundColor: colors.cardBackground }]}>
-              <Text style={styles.emptyEmoji}>📍</Text>
-              <Text style={[styles.emptyTitle, { color: colors.text }]}>No locations yet</Text>
-              <Text style={[styles.emptySubtitle, { color: colors.subText }]}>
-                Tap "+ Add" to save cities for quick access
+      {/* Main weather card */}
+      {currentWeather && (
+        <WeatherCard
+          cityName={currentWeather.cityName}
+          country={currentWeather.country}
+          temperature={currentWeather.temperature}
+          condition={currentWeather.condition}
+          description={currentWeather.description}
+          humidity={currentWeather.humidity}
+          windSpeed={currentWeather.windSpeed}
+          feelsLike={currentWeather.feelsLike}
+          colors={colors}
+        />
+      )}
+
+      {/* Locations section header */}
+      <View style={styles.sectionHeader}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          Saved locations
+        </Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("AddLocation")}
+          style={[styles.addBtn, { backgroundColor: colors.primary }]}
+        >
+          <Text style={styles.addBtnText}>+ Add</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Location list */}
+      {locations.length === 0 ? (
+        <View style={[styles.emptyState, { backgroundColor: colors.cardBackground }]}>
+          <Text style={styles.emptyEmoji}>📍</Text>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>No locations yet</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.subText }]}>
+            Tap "+ Add" to save cities for quick access
+          </Text>
+        </View>
+      ) : (
+        locations.map((loc) => {
+          const weather = weatherMap[loc.city_name];
+          const isSelected = loc.city_name === selectedCity;
+          const isCurrentLocation = loc.city_name === selectedCity;
+
+          // The row content is the same for both cases
+          const rowContent = (
+            <TouchableOpacity
+              style={[
+                styles.locationRow,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: isSelected ? colors.primary : "transparent",
+                  borderWidth: isSelected ? 1.5 : 0,
+                },
+              ]}
+              onPress={() => selectCity(loc.city_name)}
+              activeOpacity={0.75}
+            >
+              <View style={styles.locationLeft}>
+                <Text style={styles.locationEmoji}>
+                  {getWeatherEmoji(weather?.condition || "")}
+                </Text>
+                <View style={styles.locationInfo}>
+                  <View style={styles.locationNameRow}>
+                    <Text style={[styles.locationName, { color: colors.text }]}>
+                      {loc.city_name}
+                    </Text>
+                    {/* Show pin icon to indicate this is the current location */}
+                    {isCurrentLocation && (
+                      <Text style={styles.currentTag}> 📍</Text>
+                    )}
+                  </View>
+                  <Text style={[styles.locationCondition, { color: colors.subText }]}>
+                    {weather ? weather.description : "Loading…"}
+                  </Text>
+                </View>
+              </View>
+              <Text style={[styles.locationTemp, { color: colors.primary }]}>
+                {weather ? `${weather.temperature}°` : "—"}
               </Text>
-            </View>
-        ) : (
-            locations.map((loc) => {
-              const weather = weatherMap[loc.city_name];
-              const isSelected = loc.city_name === selectedCity;
-              return (
-                  <Swipeable
-                      key={loc.id}
-                      renderRightActions={() => renderDeleteAction(loc)}
-                      overshootRight={false}
-                  >
-                    <TouchableOpacity
-                        style={[
-                          styles.locationRow,
-                          {
-                            backgroundColor: colors.cardBackground,
-                            borderColor: isSelected ? colors.primary : "transparent",
-                            borderWidth: isSelected ? 1.5 : 0,
-                          },
-                        ]}
-                        onPress={() => selectCity(loc.city_name)}
-                        activeOpacity={0.75}
-                    >
-                      <View style={styles.locationLeft}>
-                        <Text style={styles.locationEmoji}>
-                          {getWeatherEmoji(weather?.condition || "")}
-                        </Text>
-                        <View style={styles.locationInfo}>
-                          <Text style={[styles.locationName, { color: colors.text }]}>
-                            {loc.city_name}
-                          </Text>
-                          <Text style={[styles.locationCondition, { color: colors.subText }]}>
-                            {weather ? weather.description : "Loading…"}
-                          </Text>
-                        </View>
-                      </View>
-                      <Text style={[styles.locationTemp, { color: colors.primary }]}>
-                        {weather ? `${weather.temperature}°` : "—"}
-                      </Text>
-                    </TouchableOpacity>
-                  </Swipeable>
-              );
-            })
-        )}
+            </TouchableOpacity>
+          );
 
-        <View style={{ height: 40 }} />
-      </ScrollView>
+          // Current location — no swipe allowed
+          if (isCurrentLocation) {
+            return <View key={loc.id}>{rowContent}</View>;
+          }
+
+          // Other locations — swipe left to delete
+          return (
+            <Swipeable
+              key={loc.id}
+              renderRightActions={() => renderDeleteAction(loc)}
+              overshootRight={false}
+            >
+              {rowContent}
+            </Swipeable>
+          );
+        })
+      )}
+
+      <View style={{ height: 40 }} />
+    </ScrollView>
   );
 };
 
@@ -406,10 +424,17 @@ const styles = StyleSheet.create({
   },
   locationEmoji: { fontSize: 28 },
   locationInfo: {},
+  locationNameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   locationName: {
     fontSize: 16,
     fontWeight: "600",
     letterSpacing: -0.2,
+  },
+  currentTag: {
+    fontSize: 12,
   },
   locationCondition: {
     fontSize: 13,
