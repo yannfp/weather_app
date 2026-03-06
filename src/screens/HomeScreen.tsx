@@ -11,17 +11,16 @@ import {
   View,
 } from "react-native";
 
+import { Swipeable } from "react-native-gesture-handler";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import {fetchWeatherByCity, fetchWeatherByCoords} from "../services/weatherService";
-import {getSavedLocations, deleteLocation, addLocation} from "../services/locationService";
+import { fetchWeatherByCity, fetchWeatherByCoords } from "../services/weatherService";
+import { getSavedLocations, deleteLocation, addLocation } from "../services/locationService";
 import { getThemeFromWeather, getWeatherEmoji } from "../utils/weatherHelpers";
 import WeatherCard from "../components/WeatherCard";
 import { WeatherData, SavedLocation, RootStackParamList } from "../types";
-
-// user location
 import * as Location from "expo-location";
 
 type HomeScreenProps = {
@@ -29,12 +28,13 @@ type HomeScreenProps = {
 };
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+
   const { user, signOut } = useAuth();
   const { colors, setTheme } = useTheme();
 
   const [locations, setLocations] = useState<SavedLocation[]>([]);
   const [weatherMap, setWeatherMap] = useState<Record<string, WeatherData>>({});
-  const [selectedCity, setSelectedCity] = useState("London");
+  const [selectedCity, setSelectedCity] = useState("Hong Kong");
   const [currentWeather, setCurrentWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -52,82 +52,71 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const loadAllWeather = async (locs: SavedLocation[]) => {
     const wm: Record<string, WeatherData> = {};
     await Promise.all(
-      locs.map(async (loc) => {
-        try {
-          wm[loc.city_name] = await fetchWeatherByCity(loc.city_name);
-        } catch {}
-      })
+        locs.map(async (loc) => {
+          try {
+            wm[loc.city_name] = await fetchWeatherByCity(loc.city_name);
+          } catch {}
+        })
     );
     return wm;
   };
 
   useEffect(() => {
-
     const init = async () => {
-
       setLoading(true);
 
       try {
-
-        // ask user to access their location
+        // Ask user to access their location
         const { status } = await Location.requestForegroundPermissionsAsync();
 
-        if (status == "granted")
-        {
-          // get the location with GPS coordinates
+        if (status === "granted") {
+          // Get the location with GPS coordinates
           const location = await Location.getCurrentPositionAsync({});
           const { latitude, longitude } = location.coords;
 
-          // fetch the weather of the city
+          // Fetch the weather of the current location
           const weather = await fetchWeatherByCoords(latitude, longitude);
 
           setCurrentWeather(weather);
           setSelectedCity(weather.cityName);
           setTheme(getThemeFromWeather(weather.condition));
 
-          // get all the locations saved by the user
-          const locations = await loadLocations();
+          // Get all saved locations
+          const savedLocs = await loadLocations();
 
-          // check if this location has been already saved
-          const alreadySaved = locations.some((l) => l.city_name == weather.cityName);
-
+          // Only save if not already in the list
+          const alreadySaved = savedLocs.some((l) => l.city_name === weather.cityName);
           if (!alreadySaved) {
-            // add the default location of the user to the database
             try {
               await addLocation({
                 city_name: weather.cityName,
-                country_code: weather.condition,
+                country_code: weather.country,  // ✅ fixed: was weather.condition
                 lat: latitude,
                 lon: longitude,
               });
-            } catch {
-
-            }
+              await loadLocations();
+            } catch {}
           }
-
         } else {
-          // permission to get the location denied by user
+          // Permission denied — fall back to default city
           const weather = await fetchWeatherByCity("Hong Kong");
-
           setCurrentWeather(weather);
           setSelectedCity(weather.cityName);
           setTheme(getThemeFromWeather(weather.condition));
         }
-      } catch (e: any) {
-
-        // gps failed back to default location
+      } catch {
+        // GPS failed — fall back to default city
         const weather = await fetchWeatherByCity("Hong Kong");
-
         setCurrentWeather(weather);
         setSelectedCity(weather.cityName);
         setTheme(getThemeFromWeather(weather.condition));
       }
 
-      // get all the saved locations by the user
-      const locations = await loadLocations();
-      if (locations.length > 0) {
-        const weatherMap = await loadAllWeather(locations);
-        setWeatherMap(weatherMap);
+      // Load all saved locations and their weather
+      const locs = await loadLocations();
+      if (locs.length > 0) {
+        const wm = await loadAllWeather(locs);
+        setWeatherMap(wm);
       }
 
       setLoading(false);
@@ -137,16 +126,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   }, []);
 
   useFocusEffect(
-    useCallback(() => {
-      const refresh = async () => {
-        const locs = await loadLocations();
-        if (locs.length > 0) {
-          const wm = await loadAllWeather(locs);
-          setWeatherMap(wm);
-        }
-      };
-      refresh();
-    }, [])
+      useCallback(() => {
+        const refresh = async () => {
+          const locs = await loadLocations();
+          if (locs.length > 0) {
+            const wm = await loadAllWeather(locs);
+            setWeatherMap(wm);
+          }
+        };
+        refresh();
+      }, [])
   );
 
   const onRefresh = async () => {
@@ -173,150 +162,152 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   };
 
-  const handleDelete = (loc: SavedLocation) => {
-    Alert.alert("Remove location", `Remove ${loc.city_name}?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Remove",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await deleteLocation(loc.id);
-            setLocations((prev) => prev.filter((l) => l.id !== loc.id));
-          } catch (e: any) {
-            Alert.alert("Error", e.message);
-          }
-        },
-      },
-    ]);
+  // Direct delete — no confirmation needed since swipe is intentional
+  const handleDelete = async (loc: SavedLocation) => {
+    try {
+      await deleteLocation(loc.id);
+      setLocations((prev) => prev.filter((l) => l.id !== loc.id));
+    } catch (e: any) {
+      Alert.alert("Error", e.message);
+    }
   };
+
+  const renderDeleteAction = (loc: SavedLocation) => (
+      <TouchableOpacity
+          style={[styles.deleteAction, { backgroundColor: "#FF3B30" }]}
+          onPress={() => handleDelete(loc)}
+      >
+        <Text style={styles.deleteActionText}>🗑</Text>
+        <Text style={styles.deleteActionLabel}>Remove</Text>
+      </TouchableOpacity>
+  );
 
   if (loading) {
     return (
-      <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={[styles.loadingText, { color: colors.subText }]}>
-          Fetching weather…
-        </Text>
-      </View>
+        <View style={[styles.centered, { backgroundColor: colors.background }]}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.subText }]}>
+            Fetching weather…
+          </Text>
+        </View>
     );
   }
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          tintColor={colors.primary}
-        />
-      }
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={[styles.greeting, { color: colors.subText }]}>
-            Good {getTimeOfDay()}
-          </Text>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Weather</Text>
+      <ScrollView
+          style={[styles.container, { backgroundColor: colors.background }]}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={colors.primary}
+            />
+          }
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={[styles.greeting, { color: colors.subText }]}>
+              Good {getTimeOfDay()}
+            </Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Weather</Text>
+          </View>
+          <TouchableOpacity
+              onPress={signOut}
+              style={[styles.signOutBtn, { borderColor: colors.accent }]}
+          >
+            <Text style={[styles.signOutText, { color: colors.subText }]}>Sign out</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={signOut} style={[styles.signOutBtn, { borderColor: colors.accent }]}>
-          <Text style={[styles.signOutText, { color: colors.subText }]}>Sign out</Text>
-        </TouchableOpacity>
-      </View>
 
-      {/* Main weather card */}
-      {currentWeather && (
-        <WeatherCard
-          cityName={currentWeather.cityName}
-          country={currentWeather.country}
-          temperature={currentWeather.temperature}
-          condition={currentWeather.condition}
-          description={currentWeather.description}
-          humidity={currentWeather.humidity}
-          windSpeed={currentWeather.windSpeed}
-          feelsLike={currentWeather.feelsLike}
-          colors={colors}
-        />
-      )}
+        {/* Main weather card */}
+        {currentWeather && (
+            <WeatherCard
+                cityName={currentWeather.cityName}
+                country={currentWeather.country}
+                temperature={currentWeather.temperature}
+                condition={currentWeather.condition}
+                description={currentWeather.description}
+                humidity={currentWeather.humidity}
+                windSpeed={currentWeather.windSpeed}
+                feelsLike={currentWeather.feelsLike}
+                colors={colors}
+            />
+        )}
 
-      {/* Locations section header */}
-      <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          Saved locations
-        </Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("AddLocation")}
-          style={[styles.addBtn, { backgroundColor: colors.primary }]}
-        >
-          <Text style={styles.addBtnText}>+ Add</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Location list */}
-      {locations.length === 0 ? (
-        <View style={[styles.emptyState, { backgroundColor: colors.cardBackground }]}>
-          <Text style={styles.emptyEmoji}>📍</Text>
-          <Text style={[styles.emptyTitle, { color: colors.text }]}>No locations yet</Text>
-          <Text style={[styles.emptySubtitle, { color: colors.subText }]}>
-            Tap "+ Add" to save cities for quick access
+        {/* Locations section header */}
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Saved locations
           </Text>
+          <TouchableOpacity
+              onPress={() => navigation.navigate("AddLocation")}
+              style={[styles.addBtn, { backgroundColor: colors.primary }]}
+          >
+            <Text style={styles.addBtnText}>+ Add</Text>
+          </TouchableOpacity>
         </View>
-      ) : (
-        locations.map((loc) => {
-          const w = weatherMap[loc.city_name];
-          const isSelected = loc.city_name === selectedCity;
-          return (
-            <TouchableOpacity
-              key={loc.id}
-              style={[
-                styles.locationRow,
-                {
-                  backgroundColor: colors.cardBackground,
-                  borderColor: isSelected ? colors.primary : "transparent",
-                  borderWidth: isSelected ? 1.5 : 0,
-                },
-              ]}
-              onPress={() => selectCity(loc.city_name)}
-              onLongPress={() => handleDelete(loc)}
-              activeOpacity={0.75}
-            >
-              {/* Left: city info */}
-              <View style={styles.locationLeft}>
-                <Text style={styles.locationEmoji}>
-                  {getWeatherEmoji(w?.condition || "")}
-                </Text>
-                <View style={styles.locationInfo}>
-                  <Text style={[styles.locationName, { color: colors.text }]}>
-                    {loc.city_name}
-                  </Text>
-                  <Text style={[styles.locationCondition, { color: colors.subText }]}>
-                    {w ? w.description : "Loading…"}
-                  </Text>
-                </View>
-              </View>
 
-              {/* Right: temperature */}
-              <Text style={[styles.locationTemp, { color: colors.primary }]}>
-                {w ? `${w.temperature}°` : "—"}
+        {/* Location list */}
+        {locations.length === 0 ? (
+            <View style={[styles.emptyState, { backgroundColor: colors.cardBackground }]}>
+              <Text style={styles.emptyEmoji}>📍</Text>
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>No locations yet</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.subText }]}>
+                Tap "+ Add" to save cities for quick access
               </Text>
-            </TouchableOpacity>
-          );
-        })
-      )}
+            </View>
+        ) : (
+            locations.map((loc) => {
+              const weather = weatherMap[loc.city_name];
+              const isSelected = loc.city_name === selectedCity;
+              return (
+                  <Swipeable
+                      key={loc.id}
+                      renderRightActions={() => renderDeleteAction(loc)}
+                      overshootRight={false}
+                  >
+                    <TouchableOpacity
+                        style={[
+                          styles.locationRow,
+                          {
+                            backgroundColor: colors.cardBackground,
+                            borderColor: isSelected ? colors.primary : "transparent",
+                            borderWidth: isSelected ? 1.5 : 0,
+                          },
+                        ]}
+                        onPress={() => selectCity(loc.city_name)}
+                        activeOpacity={0.75}
+                    >
+                      <View style={styles.locationLeft}>
+                        <Text style={styles.locationEmoji}>
+                          {getWeatherEmoji(weather?.condition || "")}
+                        </Text>
+                        <View style={styles.locationInfo}>
+                          <Text style={[styles.locationName, { color: colors.text }]}>
+                            {loc.city_name}
+                          </Text>
+                          <Text style={[styles.locationCondition, { color: colors.subText }]}>
+                            {weather ? weather.description : "Loading…"}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text style={[styles.locationTemp, { color: colors.primary }]}>
+                        {weather ? `${weather.temperature}°` : "—"}
+                      </Text>
+                    </TouchableOpacity>
+                  </Swipeable>
+              );
+            })
+        )}
 
-      <Text style={[styles.hint, { color: colors.subText }]}>
-        Long press a location to remove it
-      </Text>
-      <View style={{ height: 40 }} />
-    </ScrollView>
+        <View style={{ height: 40 }} />
+      </ScrollView>
   );
 };
 
-// Helper — returns "morning", "afternoon", or "evening"
 function getTimeOfDay(): string {
   const h = new Date().getHours();
   if (h < 12) return "morning";
@@ -431,10 +422,23 @@ const styles = StyleSheet.create({
     letterSpacing: -1,
   },
 
-  hint: {
-    textAlign: "center",
-    fontSize: 12,
-    marginTop: 8,
+  // Delete action
+  deleteAction: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    borderRadius: 20,
+    marginBottom: 10,
+    marginLeft: 12,
+  },
+  deleteActionText: {
+    fontSize: 20,
+  },
+  deleteActionLabel: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "600",
+    marginTop: 2,
   },
 });
 
