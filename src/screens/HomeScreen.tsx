@@ -85,16 +85,24 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           setSelectedCity(weather.cityName);
           setTheme(getThemeFromWeather(weather.condition));
 
-          // add the default location of the user to the database
-          try {
-            await addLocation({
-              city_name: weather.cityName,
-              country_code: weather.condition,
-              lat: latitude,
-              lon: longitude,
-            });
-          } catch {
+          // get all the locations saved by the user
+          const locations = await loadLocations();
 
+          // check if this location has been already saved
+          const alreadySaved = locations.some((l) => l.city_name == weather.cityName);
+
+          if (!alreadySaved) {
+            // add the default location of the user to the database
+            try {
+              await addLocation({
+                city_name: weather.cityName,
+                country_code: weather.condition,
+                lat: latitude,
+                lon: longitude,
+              });
+            } catch {
+
+            }
           }
 
         } else {
@@ -115,7 +123,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         setTheme(getThemeFromWeather(weather.condition));
       }
 
-      // load all saved locations
+      // get all the saved locations by the user
       const locations = await loadLocations();
       if (locations.length > 0) {
         const weatherMap = await loadAllWeather(locations);
@@ -231,7 +239,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           humidity={currentWeather.humidity}
           windSpeed={currentWeather.windSpeed}
           feelsLike={currentWeather.feelsLike}
-          visibility={currentWeather.visibility}
           colors={colors}
         />
       )}

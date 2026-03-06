@@ -2,7 +2,6 @@ import axios from "axios";
 import { WeatherAPIResponse, WeatherData } from "../types";
 
 const API_KEY = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
-console.log("API KEY LOADED:", API_KEY); // ADD THIS
 
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
 
@@ -54,11 +53,6 @@ export async function fetchWeatherByCity(city: string): Promise<WeatherData> {
         return transformWeatherData(response.data);
 
     } catch (error: any) {
-        console.log("FULL ERROR:", JSON.stringify(error));
-        console.log("ERROR RESPONSE:", error.response);
-        console.log("ERROR MESSAGE:", error.message);
-        console.log("ERROR CODE:", error.code);
-
         if (error.response?.status === 404) {
             throw new Error(`City "${city}" not found. Check the spelling.`);
         }

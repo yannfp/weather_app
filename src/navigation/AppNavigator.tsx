@@ -7,10 +7,10 @@ import { useTheme } from "../context/ThemeContext";
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
 import AddLocationScreen from "../screens/AddLocationScreen";
-import { RootStackParamsList } from "../types";
+import { RootStackParamList } from "../types";
 
 // Create the stack navigator with our TypeScript types
-const Stack = createNativeStackNavigator<RootStackParamsList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
 

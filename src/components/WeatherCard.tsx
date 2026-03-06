@@ -12,77 +12,74 @@ type WeatherCardProps = {
   humidity: number;
   windSpeed: number;
   feelsLike: number;
-  visibility: number;
   colors: ThemeColors;
 };
 
 const WeatherCard: React.FC<WeatherCardProps> = ({
-  cityName,
-  country,
-  temperature,
-  condition,
-  description,
-  humidity,
-  windSpeed,
-  feelsLike,
-  visibility,
-  colors,
-}) => {
+                                                   cityName,
+                                                   country,
+                                                   temperature,
+                                                   condition,
+                                                   description,
+                                                   humidity,
+                                                   windSpeed,
+                                                   feelsLike,
+                                                   colors,
+                                                 }) => {
   const emoji = getWeatherEmoji(condition);
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+      <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
 
-      {/* Top row — location + emoji */}
-      <View style={styles.topRow}>
-        <View>
-          <Text style={[styles.city, { color: colors.text }]}>{cityName}</Text>
-          <Text style={[styles.country, { color: colors.subText }]}>{country}</Text>
+        {/* Top row — location + emoji */}
+        <View style={styles.topRow}>
+          <View>
+            <Text style={[styles.city, { color: colors.text }]}>{cityName}</Text>
+            <Text style={[styles.country, { color: colors.subText }]}>{country}</Text>
+          </View>
+          <Text style={styles.emoji}>{emoji}</Text>
         </View>
-        <Text style={styles.emoji}>{emoji}</Text>
-      </View>
 
-      {/* Big temperature */}
-      <Text style={[styles.temperature, { color: colors.primary }]}>
-        {temperature}°
-      </Text>
-
-      {/* Condition pill */}
-      <View style={[styles.conditionPill, { backgroundColor: colors.accent }]}>
-        <Text style={[styles.conditionText, { color: colors.primary }]}>
-          {description}
+        {/* Big temperature */}
+        <Text style={[styles.temperature, { color: colors.primary }]}>
+          {temperature}°
         </Text>
+
+        {/* Condition pill */}
+        <View style={[styles.conditionPill, { backgroundColor: colors.accent }]}>
+          <Text style={[styles.conditionText, { color: colors.primary }]}>
+            {description}
+          </Text>
+        </View>
+
+        {/* Divider */}
+        <View style={[styles.divider, { backgroundColor: colors.accent }]} />
+
+        {/* Stats row */}
+        <View style={styles.statsRow}>
+          <StatItem label="Feels like" value={`${feelsLike}°`} colors={colors} />
+          <StatItem label="Humidity" value={`${humidity}%`} colors={colors} />
+          <StatItem label="Wind" value={`${windSpeed} m/s`} colors={colors} />
+        </View>
+
       </View>
-
-      {/* Divider */}
-      <View style={[styles.divider, { backgroundColor: colors.accent }]} />
-
-      {/* Stats row */}
-      <View style={styles.statsRow}>
-        <StatItem label="Feels like" value={`${feelsLike}°`} colors={colors} />
-        <StatItem label="Humidity" value={`${humidity}%`} colors={colors} />
-        <StatItem label="Wind" value={`${windSpeed} m/s`} colors={colors} />
-        <StatItem label="Visibility" value={`${visibility}km`} colors={colors} />
-      </View>
-
-    </View>
   );
 };
 
 // Small stat display
 const StatItem = ({
-  label,
-  value,
-  colors,
-}: {
+                    label,
+                    value,
+                    colors,
+                  }: {
   label: string;
   value: string;
   colors: ThemeColors;
 }) => (
-  <View style={styles.statItem}>
-    <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
-    <Text style={[styles.statLabel, { color: colors.subText }]}>{label}</Text>
-  </View>
+    <View style={styles.statItem}>
+      <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: colors.subText }]}>{label}</Text>
+    </View>
 );
 
 const styles = StyleSheet.create({
