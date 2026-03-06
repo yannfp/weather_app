@@ -90,10 +90,13 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
               styles.input,
               { color: colors.text, borderColor: focused ? colors.primary : colors.accent },
             ]}
+
             placeholder="e.g. Tokyo, Paris, New York"
             placeholderTextColor={colors.subText}
+
             value={cityName}
             onChangeText={setCityName}
+
             autoFocus
             returnKeyType="done"
             onSubmitEditing={handleAdd}

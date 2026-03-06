@@ -47,7 +47,7 @@ const AppNavigator: React.FC = () => {
                         <Stack.Screen
                             name="AddLocation"
                             component={AddLocationScreen}
-                            options={{ title: "Add Location" }}
+                            options={{ headerShown: false }}
                         />
                     </>
                 ) : (
