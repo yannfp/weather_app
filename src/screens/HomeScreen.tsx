@@ -19,6 +19,7 @@ import { useTheme } from "../context/ThemeContext";
 import { fetchWeatherByCity, fetchWeatherByCoords } from "../services/weatherService";
 import { getSavedLocations, deleteLocation, addLocation } from "../services/locationService";
 import { getThemeFromWeather, getWeatherEmoji } from "../utils/weatherHelpers";
+import { showAlert } from "../utils/alerts";
 import WeatherCard from "../components/WeatherCard";
 import { WeatherData, SavedLocation, RootStackParamList } from "../types";
 import * as Location from "expo-location";

@@ -14,19 +14,12 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { addLocation } from "../services/locationService";
 import { fetchWeatherByCity } from "../services/weatherService";
 import { useTheme } from "../context/ThemeContext";
+import { showAlert } from "../utils/alerts";
 import { RootStackParamList } from "../types";
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, "AddLocation">;
 };
-
-function showAlert(title: string, message: string) {
-  if (typeof window !== "undefined" && window.alert) {
-    window.alert(`${title}\n\n${message}`); // web
-  } else {
-    Alert.alert(title, message); // mobile
-  }
-}
 
 const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
   const { colors } = useTheme();
@@ -72,80 +65,80 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={styles.inner}>
+      <KeyboardAvoidingView
+          style={[styles.container, { backgroundColor: colors.background }]}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.inner}>
 
-        {/* Back button */}
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.backText, { color: colors.subText }]}>← Back</Text>
-        </TouchableOpacity>
-
-        {/* Title area */}
-        <View style={styles.titleArea}>
-          <Text style={styles.titleEmoji}>🔍</Text>
-          <Text style={[styles.title, { color: colors.text }]}>Add location</Text>
-          <Text style={[styles.subtitle, { color: colors.subText }]}>
-            Enter a city name to add it to your list
-          </Text>
-        </View>
-
-        {/* Input card */}
-        <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
-          <Text style={[styles.label, { color: colors.subText }]}>City name</Text>
-          <TextInput
-            style={[
-              styles.input,
-              { color: colors.text, borderColor: focused ? colors.primary : colors.accent },
-            ]}
-
-            placeholder="e.g. Tokyo, Paris, New York"
-            placeholderTextColor={colors.subText}
-
-            value={cityName}
-            onChangeText={setCityName}
-
-            autoFocus
-            returnKeyType="done"
-            onSubmitEditing={handleAdd}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-          />
-
+          {/* Back button */}
           <TouchableOpacity
-            style={[
-              styles.button,
-              { backgroundColor: colors.primary },
-              loading && styles.buttonLoading,
-            ]}
-            onPress={handleAdd}
-            disabled={loading}
-            activeOpacity={0.85}
+              onPress={() => navigation.goBack()}
+              style={styles.backBtn}
+              activeOpacity={0.7}
           >
-            {loading ? (
-              <View style={styles.loadingRow}>
-                <ActivityIndicator color="#FFFFFF" size="small" />
-                <Text style={styles.buttonText}>Checking city…</Text>
-              </View>
-            ) : (
-              <Text style={styles.buttonText}>Save location</Text>
-            )}
+            <Text style={[styles.backText, { color: colors.subText }]}>← Back</Text>
           </TouchableOpacity>
+
+          {/* Title area */}
+          <View style={styles.titleArea}>
+            <Text style={styles.titleEmoji}>🔍</Text>
+            <Text style={[styles.title, { color: colors.text }]}>Add location</Text>
+            <Text style={[styles.subtitle, { color: colors.subText }]}>
+              Enter a city name to add it to your list
+            </Text>
+          </View>
+
+          {/* Input card */}
+          <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.label, { color: colors.subText }]}>City name</Text>
+            <TextInput
+                style={[
+                  styles.input,
+                  { color: colors.text, borderColor: focused ? colors.primary : colors.accent },
+                ]}
+
+                placeholder="e.g. Tokyo, Paris, New York"
+                placeholderTextColor={colors.subText}
+
+                value={cityName}
+                onChangeText={setCityName}
+
+                autoFocus
+                returnKeyType="done"
+                onSubmitEditing={handleAdd}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+            />
+
+            <TouchableOpacity
+                style={[
+                  styles.button,
+                  { backgroundColor: colors.primary },
+                  loading && styles.buttonLoading,
+                ]}
+                onPress={handleAdd}
+                disabled={loading}
+                activeOpacity={0.85}
+            >
+              {loading ? (
+                  <View style={styles.loadingRow}>
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                    <Text style={styles.buttonText}>Checking city…</Text>
+                  </View>
+              ) : (
+                  <Text style={styles.buttonText}>Save location</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Tip */}
+          <Text style={[styles.tip, { color: colors.subText }]}>
+            💡 We verify the city exists before saving it
+          </Text>
+
         </View>
-
-        {/* Tip */}
-        <Text style={[styles.tip, { color: colors.subText }]}>
-          💡 We verify the city exists before saving it
-        </Text>
-
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
   );
 };
 
