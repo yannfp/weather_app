@@ -20,6 +20,14 @@ type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, "AddLocation">;
 };
 
+function showAlert(title: string, message: string) {
+  if (typeof window !== "undefined" && window.alert) {
+    window.alert(`${title}\n\n${message}`); // web
+  } else {
+    Alert.alert(title, message); // mobile
+  }
+}
+
 const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
   const { colors } = useTheme();
   const [cityName, setCityName] = useState("");
@@ -30,7 +38,7 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
 
     const trimmed = cityName.trim();
     if (!trimmed) {
-      Alert.alert("Missing city", "Please enter a city name.");
+      showAlert("Missing city", "Please enter a city name.");
       return;
     }
     setLoading(true);
@@ -48,7 +56,16 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
       navigation.goBack();
 
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+
+      if (error.message === "This location is already saved.") {
+        showAlert(
+            "Already saved 📍",
+            `${cityName} is already in your locations list.`
+        );
+      } else {
+        showAlert("Error", error.message);
+      }
+
     } finally {
       setLoading(false);
     }

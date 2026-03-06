@@ -1,6 +1,5 @@
 import { supabase } from "../lib/supabase";
 import { SavedLocation, NewLocation } from "../types";
-import {use} from "react";
 
 // get all saved location for the logged-in user
 export async function getSavedLocations(): Promise<SavedLocation[]> {
