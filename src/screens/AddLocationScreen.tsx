@@ -69,18 +69,8 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
       >
         <View style={commonStyles.screenContent}>
 
-          {/* Back button */}
-          <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={styles.backButton}
-              activeOpacity={0.7}
-          >
-            <Text style={[styles.backText, { color: colors.subText }]}>← Back</Text>
-          </TouchableOpacity>
-
           {/* Title area */}
           <View style={styles.titleArea}>
-            <Text style={styles.titleEmoji}>🔍</Text>
             <Text style={[styles.title, { color: colors.text }]}>Add location</Text>
             <Text style={[styles.subtitle, { color: colors.subText }]}>
               Enter a city name to add it to your list

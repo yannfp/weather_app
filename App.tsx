@@ -3,6 +3,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider } from "./src/context/AuthContext";
 import { ThemeProvider } from "./src/context/ThemeContext";
 import AppNavigator from "./src/navigation/AppNavigator";
+import {SettingsProvider} from "./src/context/SettingsContext";
 
 // app is wrapped in providers so all child components can access:
 // - AuthProvider: who is logged in
@@ -13,7 +14,9 @@ export default function App() {
         <GestureHandlerRootView style={{ flex: 1 }}>
             <AuthProvider>
                 <ThemeProvider>
-                    <AppNavigator />
+                    <SettingsProvider>
+                        <AppNavigator/>
+                    </SettingsProvider>
                 </ThemeProvider>
             </AuthProvider>
         </GestureHandlerRootView>

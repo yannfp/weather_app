@@ -2,11 +2,15 @@ import React from "react";
 import { ActivityIndicator, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
 import AddLocationScreen from "../screens/AddLocationScreen";
+import SettingsScreen from "../screens/SettingsScreen";
+
 import { RootStackParamList } from "../types";
 
 // Create the stack navigator with our TypeScript types
@@ -47,7 +51,10 @@ const AppNavigator: React.FC = () => {
                         <Stack.Screen
                             name="AddLocation"
                             component={AddLocationScreen}
-                            options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                            name="Settings"
+                            component={SettingsScreen}
                         />
                     </>
                 ) : (

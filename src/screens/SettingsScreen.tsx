@@ -29,18 +29,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
         <View style={[commonStyles.screenContainer, { backgroundColor: colors.background }]}>
             <View style={commonStyles.screenContent}>
 
-                {/* Back Button */}
-                <TouchableOpacity
-                    onPress={() => navigation.goBack}
-                    style={styles.backButton}
-                    activeOpacity={0.7}
-                >
-                    <Text style={[styles.backText, { color: colors.subText }]}>← Back</Text>
-                </TouchableOpacity>
-
                 {/* Title */}
                 <View style={styles.titleArea}>
-                    <Text style={styles.titleEmoji}>⚙️</Text>
                     <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
                 </View>
 

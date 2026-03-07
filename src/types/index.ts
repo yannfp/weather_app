@@ -134,4 +134,5 @@ export type RootStackParamList = {
     Register: undefined;
     Home: undefined;
     AddLocation: undefined;
+    Settings: undefined;
 };

@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase";
 export type TemperatureUnit = "celsius" | "fahrenheit";
 
 // get the user settings from database
-export const getSetrings = async (): Promise<TemperatureUnit> => {
+export const getSettings = async (): Promise<TemperatureUnit> => {
 
     const { data, error } = await supabase
         .from("user_settings")
