@@ -8,9 +8,9 @@ import { fontWeight, fontSize } from "../styles/spacing";
 
 // define what information must be passed to this component
 type HomeHeaderProps = {
-    themeColor: ThemeColors;
+    themeColors: ThemeColors;
     onSignOut: () => void;
-}
+};
 
 // indicates the current state of the day (morning, afternoon, evening) depending on the hour
 function getTimeOfDay(): string {
@@ -27,15 +27,15 @@ function getTimeOfDay(): string {
     return "evening";
 }
 
-const HomeHeader: React.FC<HomeHeaderProps> = ({ themeColor, onSignOut }) => (
+const HomeHeader: React.FC<HomeHeaderProps> = ({ themeColors, onSignOut }) => (
     <View style={styles.header}>
        <View>
            {/* display the greeting with the corresponding word depending on the hour */}
-           <Text style={[styles.greeting, {color: themeColor.subText}]}>
+           <Text style={[styles.greeting, {color: themeColors.subText}]}>
                Good {getTimeOfDay()}
            </Text>
 
-            <Text style={[styles.headerTitle, {color: themeColor.text}]}>
+            <Text style={[styles.headerTitle, {color: themeColors.text}]}>
                 Weather
             </Text>
        </View>
@@ -43,9 +43,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ themeColor, onSignOut }) => (
         {/* define the sign-out button for the user */}
        <TouchableOpacity
            onPress={onSignOut}
-           style={[commonStyles.pillButton, { borderColor: themeColor.accent, borderWidth: 1.5 }]}
+           style={[commonStyles.pillButton, { borderColor: themeColors.accent, borderWidth: 1.5 }]}
        >
-           <Text style={[commonStyles.pillButtonText, { color: themeColor.subText }]}>
+           <Text style={[commonStyles.pillButtonText, { color: themeColors.subText }]}>
                Sign out
            </Text>
        </TouchableOpacity>
@@ -76,3 +76,5 @@ const styles = StyleSheet.create({
         letterSpacing: -1,
     },
 });
+
+export default HomeHeader;
