@@ -25,8 +25,6 @@ function transformWeatherData(raw: WeatherAPIResponse): WeatherData {
 
         windSpeed: raw.wind.speed,
 
-        visibility: raw.visibility,
-
         icon: raw.weather[0].icon,
 
         latitude: raw.coord.lat,
@@ -34,6 +32,7 @@ function transformWeatherData(raw: WeatherAPIResponse): WeatherData {
     };
 }
 
+// get the weather of a city by its name
 export async function fetchWeatherByCity(city: string): Promise<WeatherData> {
     try {
        // make an HTTP GET request to fetch the data

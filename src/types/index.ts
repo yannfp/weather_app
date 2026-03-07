@@ -74,8 +74,6 @@ export type WeatherData = {
 
     windSpeed: number;
 
-    visibility: number;
-
     icon: string;
 
     latitude: number;

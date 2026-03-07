@@ -1,7 +1,4 @@
-// ─────────────────────────────────────────────
-// Spacing & sizing constants used across the app
-// Always use these instead of hardcoding numbers
-// ─────────────────────────────────────────────
+// spacing and sizing constants used across the app
 
 export const spacing = {
   xs: 4,

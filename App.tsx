@@ -1,4 +1,5 @@
 import React from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider } from "./src/context/AuthContext";
 import { ThemeProvider } from "./src/context/ThemeContext";
 import AppNavigator from "./src/navigation/AppNavigator";
@@ -8,11 +9,13 @@ import AppNavigator from "./src/navigation/AppNavigator";
 // - ThemeProvider: current weather theme colors
 
 export default function App() {
-  return (
-      <AuthProvider>
-        <ThemeProvider>
-          <AppNavigator />
-        </ThemeProvider>
-      </AuthProvider>
-  );
+    return (
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <AuthProvider>
+                <ThemeProvider>
+                    <AppNavigator />
+                </ThemeProvider>
+            </AuthProvider>
+        </GestureHandlerRootView>
+    );
 }
