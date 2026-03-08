@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { ThemeColors } from "../types";
 
-import { getWeatherEmoji, convertTemperature } from "../utils/weatherHelpers";
+import { convertTemperature } from "../utils/weatherHelpers";
 
 import { useSettings } from "../context/SettingsContext";
 
@@ -23,7 +23,6 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
                                                    cityName,
                                                    country,
                                                    temperature,
-                                                   condition,
                                                    description,
                                                    humidity,
                                                    windSpeed,
@@ -34,8 +33,6 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
     const { unit } = useSettings();
     const displayTemp = convertTemperature(temperature, unit);
 
-    const emoji = getWeatherEmoji(condition);
-
     return (
         <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
 
@@ -45,7 +42,6 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
                     <Text style={[styles.city, { color: colors.text }]}>{cityName}</Text>
                     <Text style={[styles.country, { color: colors.subText }]}>{country}</Text>
                 </View>
-                <Text style={styles.emoji}>{emoji}</Text>
             </View>
 
             {/* Big temperature */}

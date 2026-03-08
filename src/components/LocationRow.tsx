@@ -5,7 +5,7 @@ import { Swipeable } from "react-native-gesture-handler";
 import { useSettings } from "../context/SettingsContext";
 
 import { SavedLocation, WeatherData, ThemeColors } from "../types";
-import { getWeatherEmoji, convertTemperature } from "../utils/weatherHelpers";
+import { convertTemperature } from "../utils/weatherHelpers";
 
 import { spacing, radius, fontSize, fontWeight } from "../styles/spacing";
 
@@ -37,10 +37,6 @@ const LocationRowContent: React.FC<LocationRowContentProps> = ({ location, weath
                           activeOpacity={0.75}
         >
             <View style={styles.locationLeft}>
-                <Text style={styles.locationEmoji}>
-                    {getWeatherEmoji(weather?.condition || "")}
-                </Text>
-
                 <View>
                     <View style={styles.locationNameRow}>
                         <Text style={[styles.locationName, {color: themeColors.text}]}>

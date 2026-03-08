@@ -1,16 +1,5 @@
 import { TemperatureUnit } from "../services/settingsService";
 
-export const getWeatherEmoji = (condition: string): string => {
-  const c = condition.toLowerCase();
-  if (c.includes("thunder") || c.includes("storm")) return "⛈️";
-  if (c.includes("drizzle") || c.includes("rain")) return "🌧️";
-  if (c.includes("snow") || c.includes("sleet") || c.includes("blizzard")) return "❄️";
-  if (c.includes("fog") || c.includes("mist") || c.includes("haze")) return "🌫️";
-  if (c.includes("cloud")) return "☁️";
-  if (c.includes("clear") || c.includes("sun")) return "☀️";
-  return "🌤️";
-};
-
 export const getThemeFromWeather = (condition: string): string => {
   const c = condition.toLowerCase();
   if (c.includes("thunder") || c.includes("storm")) return "stormy";
