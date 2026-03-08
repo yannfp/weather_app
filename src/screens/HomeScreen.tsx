@@ -21,10 +21,11 @@ import { useTheme } from "../context/ThemeContext";
 import { fetchWeatherByCity, fetchWeatherByCoords } from "../services/weatherService";
 import { getSavedLocations, deleteLocation, addLocation } from "../services/locationService";
 
-import { getThemeFromWeather, getBackgroundImage } from "../utils/weatherHelpers";
+import { getThemeFromWeather, getBackgroundImage, isNightTime } from "../utils/weatherHelpers";
 
 import { commonStyles } from "../styles/common";
-import { fixedColors } from "../styles/color";
+
+import { nightColors, fixedColors } from "../styles/color";
 
 import WeatherCard from "../components/WeatherCard";
 import HomeHeader from "../components/HomeHeader";
@@ -44,13 +45,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const [locations, setLocations] = useState<SavedLocation[]>([]);
   const [weatherMap, setWeatherMap] = useState<Record<string, WeatherData>>({});
-  const [currentLocationCity, setCurrentLocationCity] = useState<string>("");
-  const [selectedCity, setSelectedCity] = useState("Hong Kong");
   const [currentWeather, setCurrentWeather] = useState<WeatherData | null>(null);
+
+  const [isNight, setIsNight] = useState<boolean>(false);
+
+  const [currentLocationCity, setCurrentLocationCity] = useState<string>("");
+  const [selectedCity, setSelectedCity] = useState<string>("Hong Kong");
   const [ backgroundImage, setBackgroundImage ] = useState<string>(getBackgroundImage("default"));
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  const activeColors = isNight ? nightColors : fixedColors;
 
   const loadLocations = async () => {
     try {
@@ -77,7 +83,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   };
 
   const applyWeather = (weather: WeatherData) => {
+    const night = isNightTime(weather.sunrise, weather.sunset);
     setCurrentWeather(weather);
+    setIsNight(night);
     setTheme(getThemeFromWeather(weather.condition) as WeatherTheme);
     setBackgroundImage(getBackgroundImage(weather.condition));
   };
@@ -209,8 +217,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   if (loading) {
     return (
         <View style={[styles.centered, { backgroundColor: "#E8F0FF" }]}>
-          <ActivityIndicator size="large" color={fixedColors.primary} />
-          <Text style={[styles.loadingText, { color: fixedColors.subText }]}>
+          <ActivityIndicator size="large" color={activeColors.primary} />
+          <Text style={[styles.loadingText, { color: activeColors.subText }]}>
             Fetching weather…
           </Text>
         </View>
@@ -223,7 +231,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           style={ styles.background }
           resizeMode="cover"
       >
-        <BlurView intensity={10} tint="light" style={StyleSheet.absoluteFill}/>
+        <BlurView intensity={ isNight ? 60 : 10 } tint={ isNight ? "dark" : "light" } style={StyleSheet.absoluteFill}/>
 
         <ScrollView
             style={ styles.scroll }
@@ -233,12 +241,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               <RefreshControl
                   refreshing={refreshing}
                   onRefresh={onRefresh}
-                  tintColor={fixedColors.primary}
+                  tintColor={activeColors.primary}
               />
             }
         >
 
-          <HomeHeader themeColors={fixedColors} onSignOut={signOut} onSettings={() => navigation.navigate("Settings")}/>
+          <HomeHeader themeColors={activeColors} onSignOut={signOut} onSettings={() => navigation.navigate("Settings")}/>
 
           {/* Main weather card */}
           {currentWeather && (
@@ -251,19 +259,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                   humidity={currentWeather.humidity}
                   windSpeed={currentWeather.windSpeed}
                   feelsLike={currentWeather.feelsLike}
-                  colors={fixedColors}
+                  timezone={currentWeather.timezone}
+                  colors={activeColors}
               />
           )}
 
           {/* Locations section header */}
           <View style={commonStyles.sectionHeader}>
-            <Text style={[commonStyles.sectionTitle, { color: fixedColors.text }]}>
+            <Text style={[commonStyles.sectionTitle, { color: activeColors.text }]}>
               Saved locations
             </Text>
 
             <TouchableOpacity
                 onPress={() => navigation.navigate("AddLocation")}
-                style={[commonStyles.pillButton, { backgroundColor: fixedColors.primary }]}
+                style={[commonStyles.pillButton, { backgroundColor: activeColors.primary }]}
             >
               <Text style={[commonStyles.pillButtonText, { color: "#FFFFFF" }]}>+ Add</Text>
             </TouchableOpacity>
@@ -271,7 +280,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
           {/* Location list */}
           {locations.length === 0 ? (
-              <EmptyLocations themeColors={fixedColors}/>
+              <EmptyLocations themeColors={activeColors}/>
           ) : (
               // sort the locations so the current location is always first
               [...locations]
@@ -284,7 +293,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                     return <LocationRow key={loc.id}
                                         location={loc}
                                         weather={weatherMap[loc.city_name]}
-                                        themeColors={fixedColors}
+                                        themeColors={activeColors}
                                         isSelected={loc.city_name == selectedCity}
                                         isCurrentLocation={loc.city_name == currentLocationCity}
                                         onPress={() => selectCity(loc.city_name)}

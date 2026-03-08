@@ -31,6 +31,8 @@ function transformWeatherData(raw: WeatherAPIResponse): WeatherData {
         longitude: raw.coord.lon,
 
         timezone: raw.timezone,
+        sunrise: raw.sys.sunrise,
+        sunset: raw.sys.sunset,
     };
 }
 

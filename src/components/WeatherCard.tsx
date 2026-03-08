@@ -3,35 +3,36 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { ThemeColors } from "../types";
 
-import { convertTemperature } from "../utils/weatherHelpers";
+import { convertTemperature, getLocalTime, getCountryName } from "../utils/weatherHelpers";
 
 import { useSettings } from "../context/SettingsContext";
 
+import { fontWeight } from "../styles/spacing";
+
 type WeatherCardProps = {
-  cityName: string;
-  country: string;
-  temperature: number;
-  condition: string;
-  description: string;
-  humidity: number;
-  windSpeed: number;
-  feelsLike: number;
-  colors: ThemeColors;
+
+    cityName: string;
+    country: string;
+
+    temperature: number;
+    condition: string;
+    description: string;
+
+    humidity: number;
+    windSpeed: number;
+    feelsLike: number;
+    timezone: number;
+
+    colors: ThemeColors;
 };
 
-const WeatherCard: React.FC<WeatherCardProps> = ({
-                                                   cityName,
-                                                   country,
-                                                   temperature,
-                                                   description,
-                                                   humidity,
-                                                   windSpeed,
-                                                   feelsLike,
-                                                   colors,
-                                                 }) => {
+const WeatherCard: React.FC<WeatherCardProps> = ({ cityName, country, temperature, description, humidity, windSpeed, feelsLike, timezone, colors }) => {
 
-    const { unit } = useSettings();
+    const { unit, timeFormat } = useSettings();
+
     const displayTemp = convertTemperature(temperature, unit);
+    const localTime = getLocalTime(timezone, timeFormat);
+    const countryName = getCountryName(country);
 
     return (
         <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
@@ -40,7 +41,11 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
             <View style={styles.topRow}>
                 <View>
                     <Text style={[styles.city, { color: colors.text }]}>{cityName}</Text>
-                    <Text style={[styles.country, { color: colors.subText }]}>{country}</Text>
+                    <Text style={[styles.country, { color: colors.subText }]}>{countryName}</Text>
+                </View>
+
+                <View style={styles.topRight}>
+                    <Text style={[styles.localTime, { color: colors.text}]}>{localTime}</Text>
                 </View>
             </View>
 
@@ -87,6 +92,7 @@ const StatItem = ({
 );
 
 const styles = StyleSheet.create({
+
     card: {
         borderRadius: 28,
         padding: 28,
@@ -97,25 +103,41 @@ const styles = StyleSheet.create({
         elevation: 5,
         marginBottom: 24,
     },
+
     topRow: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "flex-start",
         marginBottom: 16,
     },
+
+    topRight: {
+        alignItems: "flex-end",
+    },
+
     city: {
         fontSize: 22,
         fontWeight: "700",
         letterSpacing: -0.4,
     },
+
     country: {
         fontSize: 14,
         marginTop: 2,
         fontWeight: "500",
     },
+
+    localTime: {
+        fontSize: 18,
+        fontWeight: fontWeight.medium,
+        marginTop: 4,
+        letterSpacing: 0.2,
+    },
+
     emoji: {
         fontSize: 40,
     },
+
     temperature: {
         fontSize: 88,
         fontWeight: "700",
@@ -123,6 +145,7 @@ const styles = StyleSheet.create({
         lineHeight: 88,
         marginBottom: 16,
     },
+
     conditionPill: {
         alignSelf: "flex-start",
         paddingHorizontal: 14,
@@ -130,29 +153,35 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginBottom: 24,
     },
+
     conditionText: {
         fontSize: 13,
         fontWeight: "600",
         textTransform: "capitalize",
         letterSpacing: 0.2,
     },
+
     divider: {
         height: 1,
         marginBottom: 20,
         borderRadius: 1,
     },
+
     statsRow: {
         flexDirection: "row",
         justifyContent: "space-between",
     },
+
     statItem: {
         alignItems: "center",
     },
+
     statValue: {
         fontSize: 16,
         fontWeight: "600",
         letterSpacing: -0.3,
     },
+
     statLabel: {
         fontSize: 11,
         marginTop: 3,

@@ -9,3 +9,13 @@ export const fixedColors: ThemeColors = {
     secondary: "#5A9FE8",
     background: "#E8F0FF",
 };
+
+export const nightColors: ThemeColors = {
+    text: "#FFFFFF",
+    subText: "rgba(255,255,255,0.7)",
+    cardBackground: "rgba(0,0,0,0.4)",
+    accent: "rgba(255,255,255,0.15)",
+    primary: "#FFFFFF",
+    secondary: "#AAAAAA",
+    background: "#000000",
+};

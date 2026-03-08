@@ -27,6 +27,11 @@ export const getBackgroundImage = (condition: string): string => {
   return images[theme] ?? images.default;
 }
 
+export const isNightTime = (sunrise: number, sunset: number): boolean => {
+  const nowUTC = Math.floor(Date.now() / 1000);
+  return nowUTC < sunrise || nowUTC > sunset;
+}
+
 export const getLocalTime = (timezone: number, timeFormat: "12h" | "24h"): string => {
 
   const utcMs = Date.now();
@@ -45,6 +50,15 @@ export const getLocalTime = (timezone: number, timeFormat: "12h" | "24h"): strin
   const displayHours = hours % 12 || 12;
 
   return `${displayHours}:${minutes} ${ampm}`;
+}
+
+export const getCountryName = (code: string): string => {
+  try {
+    const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+    return regionNames.of(code.toUpperCase()) ?? code;
+  } catch {
+    return code;
+  }
 }
 
 export const convertTemperature = (celsius: number, unit: TemperatureUnit) => {

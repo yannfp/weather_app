@@ -6,10 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="9b3a2a30-9bd8-4aee-af92-1edb3c4f7f11" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/LocationRow.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/LocationRow.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/context/SettingsContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/context/SettingsContext.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/screens/SettingsScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/SettingsScreen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/settingsService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/settingsService.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/WeatherCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/WeatherCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/AddLocationScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/AddLocationScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/HomeScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/HomeScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/weatherService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/weatherService.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/color.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/color.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils/weatherHelpers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/weatherHelpers.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -85,7 +87,7 @@
       <workItem from="1772722432634" duration="1193000" />
       <workItem from="1772734248519" duration="2930000" />
       <workItem from="1772737589720" duration="6451000" />
-      <workItem from="1772787775279" duration="55792000" />
+      <workItem from="1772787775279" duration="59252000" />
     </task>
     <servers />
   </component>

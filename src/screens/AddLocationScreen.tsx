@@ -49,7 +49,7 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
     } catch (error: any) {
 
       if (error.message === "This location is already saved.") {
-        setErrorMessage("`${cityName}` is already in your location list.");
+        setErrorMessage(`${cityName} is already in your location list.`);
       } else {
         setErrorMessage(error.message);
       }

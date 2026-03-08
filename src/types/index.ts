@@ -12,6 +12,9 @@ export type WeatherAPIResponse = {
     sys: {
         // country code (US, FR, ...)
         country: string;
+
+        sunrise: number;
+        sunset: number;
     };
 
     main: {
@@ -59,6 +62,8 @@ export type WeatherData = {
 
     // country code
     country: string;
+    sunrise: number;
+    sunset: number;
 
     temperature: number;
     feelsLike: number;
