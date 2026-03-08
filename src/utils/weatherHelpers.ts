@@ -94,3 +94,12 @@ export function getThemeGradient(theme: WeatherTheme): [string, string] {
   };
   return gradients[theme];
 }
+
+export const convertTemperature = (celsius: number, unit: "celsius" | "fahrenheit") => {
+
+  if (unit === "fahrenheit") {
+    return Math.round((celsius * 9) / 5 + 32);
+  }
+
+  return Math.round(celsius);
+}

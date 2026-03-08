@@ -2,8 +2,10 @@ import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 
+import { useSettings } from "../context/SettingsContext";
+
 import { SavedLocation, WeatherData, ThemeColors } from "../types";
-import { getWeatherEmoji } from "../utils/weatherHelpers";
+import { getWeatherEmoji, convertTemperature } from "../utils/weatherHelpers";
 
 import { spacing, radius, fontSize, fontWeight } from "../styles/spacing";
 
@@ -18,47 +20,54 @@ type LocationRowContentProps = {
     onPress: () => void;
 };
 
-const LocationRowContent: React.FC<LocationRowContentProps> = ({ location, weather, themeColors, isSelected, isCurrentLocation, onPress }) => (
+const LocationRowContent: React.FC<LocationRowContentProps> = ({ location, weather, themeColors, isSelected, isCurrentLocation, onPress }) => {
 
-    <TouchableOpacity style={[styles.locationRow,
-        {
-            backgroundColor: themeColors.cardBackground,
-            borderColor: isSelected ? themeColors.primary : "transparent",
-            borderWidth: isSelected ? 1.5 : 0,
-        },
-    ]}
-    onPress={onPress}
-    activeOpacity={0.75}
-    >
-        <View style={styles.locationLeft}>
-            <Text style={styles.locationEmoji}>
-                {getWeatherEmoji(weather?.condition || "")}
-            </Text>
+    const {unit} = useSettings();
+    const displayTemp = convertTemperature(weather.temperature, unit);
 
-            <View>
-                <View style={styles.locationNameRow}>
-                    <Text style={[styles.locationName, {color: themeColors.text}]}>
-                        {location.city_name}
-                    </Text>
-
-                    {/* current location of the user*/}
-                    {isCurrentLocation && (
-                        <Text style={styles.currentTag}>📍</Text>
-                    )}
-                </View>
-
-                <Text style={[styles.locationCondition, { color: themeColors.subText }]}>
-                    {weather ? weather.description : "Loading..."}
+    return (
+        <TouchableOpacity style={[styles.locationRow,
+            {
+                backgroundColor: themeColors.cardBackground,
+                borderColor: isSelected ? themeColors.primary : "transparent",
+                borderWidth: isSelected ? 1.5 : 0,
+            },
+        ]}
+                          onPress={onPress}
+                          activeOpacity={0.75}
+        >
+            <View style={styles.locationLeft}>
+                <Text style={styles.locationEmoji}>
+                    {getWeatherEmoji(weather?.condition || "")}
                 </Text>
+
+                <View>
+                    <View style={styles.locationNameRow}>
+                        <Text style={[styles.locationName, {color: themeColors.text}]}>
+                            {location.city_name}
+                        </Text>
+
+                        {/* current location of the user*/}
+                        {isCurrentLocation && (
+                            <View style={styles.currentTag}>
+                                <Text style={[styles.currentTagText, { color: themeColors.subText }]}>Current Location</Text>
+                            </View>
+                        )}
+                    </View>
+
+                    <Text style={[styles.locationCondition, {color: themeColors.subText}]}>
+                        {weather ? weather.description : "Loading..."}
+                    </Text>
+                </View>
             </View>
-        </View>
 
-        <Text style={[styles.locationTemp, { color: themeColors.primary }]}>
-            {weather ? `${weather.temperature}°` : "-"}
-        </Text>
-    </TouchableOpacity>
+            <Text style={[styles.locationTemp, {color: themeColors.primary}]}>
+                {weather ? `${displayTemp}°${unit == "fahrenheit" ? "F" : "C"}` : "-"}
+            </Text>
+        </TouchableOpacity>
 
-);
+    );
+}
 
 type LocationRowProps = {
     location: SavedLocation;
@@ -126,8 +135,7 @@ const styles = StyleSheet.create({
     },
 
     locationNameRow: {
-        flexDirection: "row",
-        alignItems: "center",
+        alignItems: "flex-start",
     },
 
     locationName: {
@@ -137,7 +145,14 @@ const styles = StyleSheet.create({
     },
 
     currentTag: {
-        fontSize: fontSize.xs,
+        marginBottom: spacing.sm,
+        paddingVertical: 2,
+        borderRadius: radius.full,
+    },
+
+    currentTagText: {
+        fontSize: 9,
+        fontWeight: fontWeight.semibold,
     },
 
     locationCondition: {
