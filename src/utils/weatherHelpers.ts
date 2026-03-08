@@ -27,7 +27,7 @@ export const getBackgroundImage = (condition: string): string => {
   return images[theme] ?? images.default;
 }
 
-export const getLocalTime = (timezone: number): string => {
+export const getLocalTime = (timezone: number, timeFormat: "12h" | "24h"): string => {
 
   const utcMs = Date.now();
   const localMs = utcMs + timezone * 1000;
@@ -35,6 +35,10 @@ export const getLocalTime = (timezone: number): string => {
 
   const hours = localDate.getUTCHours();
   const minutes = localDate.getUTCMinutes().toString().padStart(2, "0");
+
+  if (timeFormat == "24h") {
+    return `${hours.toString().padStart(2, "0")}:${minutes}`;
+  }
 
   const ampm = hours >= 12 ? "PM" : "AM";
 

@@ -16,7 +16,7 @@ type SettingsScreenProps = {
 
 const SettingsScreen: React.FC<SettingsScreenProps> = () => {
 
-    const { unit, setUnit } = useSettings();
+    const { unit, setUnit, timeFormat, setTimeFormat } = useSettings();
 
     return (
         <View style={[commonStyles.screenContainer, { backgroundColor: fixedColors.background }]}>
@@ -80,9 +80,36 @@ const SettingsScreen: React.FC<SettingsScreenProps> = () => {
                                 Fahrenheit
                             </Text>
                         </TouchableOpacity>
-
                     </View>
+                </View>
 
+                {/* Time Format Card */}
+                <View style={[commonStyles.card, { backgroundColor: fixedColors.cardBackground }]}>
+                    <Text style={[styles.sectionLabel, { color: fixedColors.subText }]}>
+                        Time format
+                    </Text>
+
+                    <View style={styles.unitRow}>
+                        <TouchableOpacity
+                            style={[styles.unitButton, timeFormat === "12h" && styles.unitButtonActive]}
+                            onPress={() => setTimeFormat("12h")}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={[styles.unitButtonText, timeFormat === "12h" && styles.unitButtonTextActive]}>
+                                12h
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.unitButton, timeFormat === "24h" && styles.unitButtonActive]}
+                            onPress={() => setTimeFormat("24h")}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={[styles.unitButtonText, timeFormat === "24h" && styles.unitButtonTextActive]}>
+                                24h
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
             </View>

@@ -1,10 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-import {getSettings, TemperatureUnit, updateTemperatureUnit} from "../services/settingsService";
+import {
+    getSettings,
+    TemperatureUnit,
+    TimeFormat,
+    updateTemperatureUnit,
+    updateTimeFormat
+} from "../services/settingsService";
 
 type SettingsContextType = {
     unit: TemperatureUnit;
     setUnit: (unit: TemperatureUnit) => Promise<void>;
+
+    timeFormat: TimeFormat;
+    setTimeFormat: (timeFormat: TimeFormat) => Promise<void>;
+
     loading: boolean;
 };
 
@@ -23,6 +33,8 @@ export const useSettings = (): SettingsContextType => {
 export const SettingsProvider:React.FC<{ children : React.ReactNode }> = ({ children }) => {
 
     const [unit, setUnitState] = useState<TemperatureUnit>("celsius");
+    const [timeFormat, setTimeFormatState] = useState<TimeFormat>("12h");
+
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -30,7 +42,8 @@ export const SettingsProvider:React.FC<{ children : React.ReactNode }> = ({ chil
         const load = async () => {
             try {
                 const saved = await getSettings();
-                setUnitState(saved);
+                setUnitState(saved.unit);
+                setTimeFormatState(saved.timeFormat);
             } catch {}
 
             setLoading(false);
@@ -44,8 +57,13 @@ export const SettingsProvider:React.FC<{ children : React.ReactNode }> = ({ chil
         await updateTemperatureUnit(newUnit);
     };
 
+    const setTimeFormat = async (format: TimeFormat) => {
+        setTimeFormatState(format);
+        await updateTimeFormat(format);
+    };
+
     return (
-      <SettingsContext.Provider value={{ unit, setUnit, loading }}>
+      <SettingsContext.Provider value={{ unit, setUnit, timeFormat, setTimeFormat, loading }}>
           { children }
       </SettingsContext.Provider>
     );

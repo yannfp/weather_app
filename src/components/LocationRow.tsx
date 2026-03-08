@@ -22,7 +22,7 @@ type LocationRowContentProps = {
 
 const LocationRowContent: React.FC<LocationRowContentProps> = ({ location, weather, themeColors, isSelected, isCurrentLocation, onPress }) => {
 
-    const {unit} = useSettings();
+    const { unit, timeFormat } = useSettings();
     const displayTemp = weather ? convertTemperature(weather.temperature, unit) : null;
 
     return (
@@ -45,7 +45,7 @@ const LocationRowContent: React.FC<LocationRowContentProps> = ({ location, weath
                             </Text>
 
                             <Text style={[styles.locationTime, { color: themeColors.subText }]}>
-                                {weather ? getLocalTime(weather.timezone) : "-"}
+                                {weather ? getLocalTime(weather.timezone, timeFormat) : "-"}
                             </Text>
                         </View>
 
@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
 
     locationNameRow: {
         alignItems: "flex-start",
+        marginBottom: 5,
     },
 
     locationName: {
