@@ -272,7 +272,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
             <TouchableOpacity
                 onPress={() => navigation.navigate("AddLocation")}
-                style={[commonStyles.pillButton, { backgroundColor: activeColors.primary }]}
+                style={[commonStyles.pillButton, { backgroundColor: "rgba(0,0,0,0.25)" }]}
             >
               <Text style={[commonStyles.pillButtonText, { color: "#FFFFFF" }]}>+ Add</Text>
             </TouchableOpacity>
