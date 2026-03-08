@@ -5,7 +5,7 @@ import { Swipeable } from "react-native-gesture-handler";
 import { useSettings } from "../context/SettingsContext";
 
 import { SavedLocation, WeatherData, ThemeColors } from "../types";
-import { convertTemperature } from "../utils/weatherHelpers";
+import { convertTemperature, getLocalTime } from "../utils/weatherHelpers";
 
 import { spacing, radius, fontSize, fontWeight } from "../styles/spacing";
 
@@ -39,9 +39,15 @@ const LocationRowContent: React.FC<LocationRowContentProps> = ({ location, weath
             <View style={styles.locationLeft}>
                 <View>
                     <View style={styles.locationNameRow}>
-                        <Text style={[styles.locationName, {color: themeColors.text}]}>
-                            {location.city_name}
-                        </Text>
+                        <View>
+                            <Text style={[styles.locationName, {color: themeColors.text}]}>
+                                {location.city_name}
+                            </Text>
+
+                            <Text style={[styles.locationTime, { color: themeColors.subText }]}>
+                                {weather ? getLocalTime(weather.timezone) : "-"}
+                            </Text>
+                        </View>
 
                         {/* current location of the user*/}
                         {isCurrentLocation && (
@@ -138,6 +144,11 @@ const styles = StyleSheet.create({
         fontSize: fontSize.base,
         fontWeight: fontWeight.semibold,
         letterSpacing: -0.2,
+    },
+
+    locationTime: {
+        fontSize: fontSize.xs,
+        marginTop: 2,
     },
 
     currentTag: {

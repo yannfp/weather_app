@@ -27,6 +27,21 @@ export const getBackgroundImage = (condition: string): string => {
   return images[theme] ?? images.default;
 }
 
+export const getLocalTime = (timezone: number): string => {
+
+  const utcMs = Date.now();
+  const localMs = utcMs + timezone * 1000;
+  const localDate = new Date(localMs);
+
+  const hours = localDate.getUTCHours();
+  const minutes = localDate.getUTCMinutes().toString().padStart(2, "0");
+
+  const ampm = hours >= 12 ? "PM" : "AM";
+
+  const displayHours = hours % 12 || 12;
+
+  return `${displayHours}:${minutes} ${ampm}`;
+}
 
 export const convertTemperature = (celsius: number, unit: TemperatureUnit) => {
   if (unit === "fahrenheit") {

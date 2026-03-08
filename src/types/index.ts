@@ -44,14 +44,13 @@ export type WeatherAPIResponse = {
         degree: number;
     };
 
-    // visibility level
-    visibility: number;
-
     // coordinates of the city
     coord: {
         lat: number;
         lon: number;
     };
+
+    timezone: number;
 };
 
 // cleaned-up data we got from the API response
@@ -78,6 +77,8 @@ export type WeatherData = {
 
     latitude: number;
     longitude: number;
+
+    timezone: number;
 };
 
 // LOCATION TYPES

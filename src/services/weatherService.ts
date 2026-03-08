@@ -29,6 +29,8 @@ function transformWeatherData(raw: WeatherAPIResponse): WeatherData {
 
         latitude: raw.coord.lat,
         longitude: raw.coord.lon,
+
+        timezone: raw.timezone,
     };
 }
 
