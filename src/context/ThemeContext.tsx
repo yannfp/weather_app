@@ -1,10 +1,8 @@
 import React, { createContext, useContext, useState } from "react";
-import { ThemeColors, WeatherTheme } from "../types";
-import { THEME_COLORS } from "../utils/weatherHelpers";
+import { WeatherTheme } from "../types";
 
 type ThemeContextType = {
     theme: WeatherTheme;
-    colors: ThemeColors;
     setTheme: (theme: WeatherTheme) => void;
 };
 
@@ -16,13 +14,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [theme, setTheme] = useState<WeatherTheme>("default");
 
     return (
-        <ThemeContext.Provider
-            value={{
-                theme,
-                colors: THEME_COLORS[theme],
-                setTheme,
-            }}
-        >
+        <ThemeContext.Provider value={{ theme, setTheme }}>
             {children}
         </ThemeContext.Provider>
     );

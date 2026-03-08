@@ -4,7 +4,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
+
+import { fixedColors } from "../styles/color";
 
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
@@ -19,13 +20,12 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const AppNavigator: React.FC = () => {
 
     const { user, loading } = useAuth();
-    const { colors } = useTheme();
 
     // show loading spinner while checking auth state
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.background }}>
-                <ActivityIndicator size="large" color={colors.primary} />
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: fixedColors.background }}>
+                <ActivityIndicator size="large" color={fixedColors.primary} />
             </View>
         );
     }
@@ -35,8 +35,8 @@ const AppNavigator: React.FC = () => {
             <Stack.Navigator
                 screenOptions={{
                     // style the navigation header to match our theme
-                    headerStyle: { backgroundColor: colors.background },
-                    headerTintColor: colors.text,
+                    headerStyle: { backgroundColor: fixedColors.background },
+                    headerTintColor: fixedColors.text,
                     headerShadowVisible: false,
                 }}
             >

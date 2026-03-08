@@ -1,5 +1,16 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  ImageBackground,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
+import { BlurView } from "expo-blur";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
@@ -10,17 +21,17 @@ import { useTheme } from "../context/ThemeContext";
 import { fetchWeatherByCity, fetchWeatherByCoords } from "../services/weatherService";
 import { getSavedLocations, deleteLocation, addLocation } from "../services/locationService";
 
-import { getThemeFromWeather } from "../utils/weatherHelpers";
+import { getThemeFromWeather, getBackgroundImage } from "../utils/weatherHelpers";
 
 import { commonStyles } from "../styles/common";
-import { spacing, fontSize, fontWeight, radius } from "../styles/spacing";
+import { fixedColors } from "../styles/color";
 
 import WeatherCard from "../components/WeatherCard";
 import HomeHeader from "../components/HomeHeader";
 import LocationRow from "../components/LocationRow";
 import EmptyLocations from "../components/EmptyLocations";
 
-import { WeatherData, SavedLocation, RootStackParamList } from "../types";
+import {WeatherData, SavedLocation, RootStackParamList, WeatherTheme, ThemeColors} from "../types";
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, "Home">;
@@ -29,16 +40,14 @@ type HomeScreenProps = {
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const { signOut } = useAuth();
-  const { colors, setTheme } = useTheme();
+  const { setTheme } = useTheme();
 
   const [locations, setLocations] = useState<SavedLocation[]>([]);
-
   const [weatherMap, setWeatherMap] = useState<Record<string, WeatherData>>({});
   const [currentLocationCity, setCurrentLocationCity] = useState<string>("");
-
   const [selectedCity, setSelectedCity] = useState("Hong Kong");
-
   const [currentWeather, setCurrentWeather] = useState<WeatherData | null>(null);
+  const [ backgroundImage, setBackgroundImage ] = useState<string>(getBackgroundImage("default"));
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -67,6 +76,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     return weatherMap;
   };
 
+  const applyWeather = (weather: WeatherData) => {
+    setCurrentWeather(weather);
+    setTheme(getThemeFromWeather(weather.condition) as WeatherTheme);
+    setBackgroundImage(getBackgroundImage(weather.condition));
+  };
+
   // load GPS coordinates then weather
   useEffect(() => {
 
@@ -84,11 +99,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
           // fetch the weather of the current location
           const weather = await fetchWeatherByCoords(latitude, longitude);
-
-          setCurrentWeather(weather);
+          applyWeather(weather);
           setSelectedCity(weather.cityName);
           setCurrentLocationCity(weather.cityName);
-          setTheme(getThemeFromWeather(weather.condition));
 
           // get all saved locations
           const savedLocs = await loadLocations();
@@ -96,7 +109,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           // only save if not already in the list
           const alreadySaved = savedLocs.some((l) => l.city_name === weather.cityName);
           if (!alreadySaved) {
-
             try {
               await addLocation({
                 city_name: weather.cityName,
@@ -106,24 +118,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               });
 
               await loadLocations();
-
             } catch {}
           }
 
         } else {
           // permission denied — fall back to default city
           const weather = await fetchWeatherByCity("Hong Kong");
-          setCurrentWeather(weather);
+          applyWeather(weather);
           setSelectedCity(weather.cityName);
-          setTheme(getThemeFromWeather(weather.condition));
         }
 
       } catch {
         // GPS failed — fall back to default city
         const weather = await fetchWeatherByCity("Hong Kong");
-        setCurrentWeather(weather);
+        applyWeather(weather);
         setSelectedCity(weather.cityName);
-        setTheme(getThemeFromWeather(weather.condition));
       }
 
       // load all saved locations and their weather
@@ -158,17 +167,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     setRefreshing(true);
 
     try {
-      const w = await fetchWeatherByCity(selectedCity);
-
-      setCurrentWeather(w);
-      setTheme(getThemeFromWeather(w.condition));
-
+      const weather = await fetchWeatherByCity(selectedCity);
+      applyWeather(weather);
     } catch {}
 
-    const locs = await loadLocations();
-    const wm = await loadAllWeather(locs);
+    const locations = await loadLocations();
+    const weatherMap = await loadAllWeather(locations);
 
-    setWeatherMap(wm);
+    setWeatherMap(weatherMap);
     setRefreshing(false);
   };
 
@@ -176,10 +182,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     setSelectedCity(cityName);
 
     try {
-      const w = weatherMap[cityName] || (await fetchWeatherByCity(cityName));
-
-      setCurrentWeather(w);
-      setTheme(getThemeFromWeather(w.condition));
+      const weather = weatherMap[cityName] || (await fetchWeatherByCity(cityName));
+      applyWeather(weather)
     } catch (e: any) {
       Alert.alert("Error", e.message);
     }
@@ -204,9 +208,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   if (loading) {
     return (
-        <View style={[commonStyles.centered, { backgroundColor: colors.background }]}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[commonStyles.loadingText, { color: colors.subText }]}>
+        <View style={[styles.centered, { backgroundColor: "#E8F0FF" }]}>
+          <ActivityIndicator size="large" color={fixedColors.primary} />
+          <Text style={[styles.loadingText, { color: fixedColors.subText }]}>
             Fetching weather…
           </Text>
         </View>
@@ -214,77 +218,103 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   }
 
   return (
-      <ScrollView
-          style={[commonStyles.screenContainer, { backgroundColor: colors.background }]}
-          contentContainerStyle={commonStyles.screenContent}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                tintColor={colors.primary}
-            />
-          }
+      <ImageBackground
+          source={{ uri: backgroundImage }}
+          style={ styles.background }
+          resizeMode="cover"
       >
+        <BlurView intensity={10} tint="light" style={StyleSheet.absoluteFill}/>
 
-        <HomeHeader themeColors={colors} onSignOut={signOut} onSettings={() => navigation.navigate("Settings")}/>
+        <ScrollView
+            style={ styles.scroll }
+            contentContainerStyle={commonStyles.screenContent}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={fixedColors.primary}
+              />
+            }
+        >
 
-        {/* Main weather card */}
-        {currentWeather && (
-            <WeatherCard
-                cityName={currentWeather.cityName}
-                country={currentWeather.country}
-                temperature={currentWeather.temperature}
-                condition={currentWeather.condition}
-                description={currentWeather.description}
-                humidity={currentWeather.humidity}
-                windSpeed={currentWeather.windSpeed}
-                feelsLike={currentWeather.feelsLike}
-                colors={colors}
-            />
-        )}
+          <HomeHeader themeColors={fixedColors} onSignOut={signOut} onSettings={() => navigation.navigate("Settings")}/>
 
-        {/* Locations section header */}
-        <View style={commonStyles.sectionHeader}>
-          <Text style={[commonStyles.sectionTitle, { color: colors.text }]}>
-            Saved locations
-          </Text>
+          {/* Main weather card */}
+          {currentWeather && (
+              <WeatherCard
+                  cityName={currentWeather.cityName}
+                  country={currentWeather.country}
+                  temperature={currentWeather.temperature}
+                  condition={currentWeather.condition}
+                  description={currentWeather.description}
+                  humidity={currentWeather.humidity}
+                  windSpeed={currentWeather.windSpeed}
+                  feelsLike={currentWeather.feelsLike}
+                  colors={fixedColors}
+              />
+          )}
 
-          <TouchableOpacity
-              onPress={() => navigation.navigate("AddLocation")}
-              style={[commonStyles.pillButton, { backgroundColor: colors.primary }]}
-          >
-            <Text style={commonStyles.pillButtonText}>+ Add</Text>
-          </TouchableOpacity>
-        </View>
+          {/* Locations section header */}
+          <View style={commonStyles.sectionHeader}>
+            <Text style={[commonStyles.sectionTitle, { color: fixedColors.text }]}>
+              Saved locations
+            </Text>
 
-        {/* Location list */}
-        {locations.length === 0 ? (
-          <EmptyLocations themeColors={colors}/>
-        ) : (
-            // sort the locations so the current location is always first
-            [...locations]
-                .sort((a, b) => {
-                  if (a.city_name == currentLocationCity) return -1;
-                  if (b.city_name == currentLocationCity) return 1;
-                  return 0;
-                })
-                .map((loc) => {
-                  return <LocationRow key={loc.id}
-                               location={loc}
-                               weather={weatherMap[loc.city_name]}
-                               themeColors={colors}
-                               isSelected={loc.city_name == selectedCity}
-                               isCurrentLocation={loc.city_name == currentLocationCity}
-                               onPress={() => selectCity(loc.city_name)}
-                               onDelete={() => handleDelete(loc)}
-                  />
-                })
-        )}
+            <TouchableOpacity
+                onPress={() => navigation.navigate("AddLocation")}
+                style={[commonStyles.pillButton, { backgroundColor: fixedColors.primary }]}
+            >
+              <Text style={[commonStyles.pillButtonText, { color: "#FFFFFF" }]}>+ Add</Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={{ height: 40 }} />
-      </ScrollView>
+          {/* Location list */}
+          {locations.length === 0 ? (
+              <EmptyLocations themeColors={fixedColors}/>
+          ) : (
+              // sort the locations so the current location is always first
+              [...locations]
+                  .sort((a, b) => {
+                    if (a.city_name == currentLocationCity) return -1;
+                    if (b.city_name == currentLocationCity) return 1;
+                    return 0;
+                  })
+                  .map((loc) => {
+                    return <LocationRow key={loc.id}
+                                        location={loc}
+                                        weather={weatherMap[loc.city_name]}
+                                        themeColors={fixedColors}
+                                        isSelected={loc.city_name == selectedCity}
+                                        isCurrentLocation={loc.city_name == currentLocationCity}
+                                        onPress={() => selectCity(loc.city_name)}
+                                        onDelete={() => handleDelete(loc)}
+                    />
+                  })
+          )}
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </ImageBackground>
   );
 };
+
+const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  scroll: {
+    flex: 1,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 14,
+    fontSize: 15,
+  },
+});
 
 export default HomeScreen;

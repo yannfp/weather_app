@@ -1,16 +1,14 @@
 import React, { useState } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { addLocation } from "../services/locationService";
 import { fetchWeatherByCity } from "../services/weatherService";
 
-import { useTheme } from "../context/ThemeContext";
-
 import { RootStackParamList } from "../types";
 
 import { commonStyles } from "../styles/common";
-import { spacing, fontSize, fontWeight } from "../styles/spacing";
+import { fixedColors } from "../styles/color";
 
 import CityInput from "../components/CityInput";
 
@@ -19,7 +17,6 @@ type Props = {
 };
 
 const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
-  const { colors } = useTheme();
 
   const [cityName, setCityName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -64,22 +61,22 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
       <KeyboardAvoidingView
-          style={[commonStyles.screenContainer, { backgroundColor: colors.background }]}
+          style={[commonStyles.screenContainer, { backgroundColor: fixedColors.background }]}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <View style={commonStyles.screenContent}>
 
           {/* Title area */}
           <View style={styles.titleArea}>
-            <Text style={[styles.title, { color: colors.text }]}>Add location</Text>
-            <Text style={[styles.subtitle, { color: colors.subText }]}>
+            <Text style={[styles.title, { color: fixedColors.text }]}>Add location</Text>
+            <Text style={[styles.subtitle, { color: fixedColors.subText }]}>
               Enter a city name to add it to your list
             </Text>
           </View>
 
           {/* Input card */}
           <CityInput
-              themeColors={colors}
+              themeColors={fixedColors}
               value={cityName}
               onChangeText={(text) => {
                 setCityName(text);
@@ -91,7 +88,7 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
           />
 
           {/* Tip */}
-          <Text style={[styles.tip, { color: colors.subText }]}>
+          <Text style={[styles.tip, { color: fixedColors.subText }]}>
             💡 We verify the city exists before saving it
           </Text>
 

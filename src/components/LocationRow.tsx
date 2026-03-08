@@ -11,7 +11,7 @@ import { spacing, radius, fontSize, fontWeight } from "../styles/spacing";
 
 type LocationRowContentProps = {
     location: SavedLocation;
-    weather: WeatherData;
+    weather: WeatherData | undefined;
     themeColors: ThemeColors;
 
     isSelected: boolean;
@@ -23,7 +23,7 @@ type LocationRowContentProps = {
 const LocationRowContent: React.FC<LocationRowContentProps> = ({ location, weather, themeColors, isSelected, isCurrentLocation, onPress }) => {
 
     const {unit} = useSettings();
-    const displayTemp = convertTemperature(weather.temperature, unit);
+    const displayTemp = weather ? convertTemperature(weather.temperature, unit) : null;
 
     return (
         <TouchableOpacity style={[styles.locationRow,
@@ -71,7 +71,7 @@ const LocationRowContent: React.FC<LocationRowContentProps> = ({ location, weath
 
 type LocationRowProps = {
     location: SavedLocation;
-    weather: WeatherData;
+    weather: WeatherData | undefined;
     themeColors: ThemeColors;
 
     isSelected: boolean;
