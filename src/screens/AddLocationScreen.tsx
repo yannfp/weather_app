@@ -87,11 +87,6 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
               errorMessage={errorMessage}
           />
 
-          {/* Tip */}
-          <Text style={[styles.tip, { color: fixedColors.subText }]}>
-            💡 We verify the city exists before saving it
-          </Text>
-
         </View>
       </KeyboardAvoidingView>
   );
