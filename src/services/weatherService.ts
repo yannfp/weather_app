@@ -4,6 +4,7 @@ import { WeatherAPIResponse, WeatherData } from "../types";
 const API_KEY = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
 
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
+const GEO_URL = "https://api.openweathermap.org/geo/1.0";
 
 // transforms the raw data received from the OpenWeatherMap API into our cleanup data type
 function transformWeatherData(raw: WeatherAPIResponse): WeatherData {
@@ -82,5 +83,41 @@ export async function fetchWeatherByCoords(lat: number, lon: number): Promise<We
 
     } catch (error: any) {
         throw new Error("Failed to fetch weather for your location.");
+    }
+}
+
+export type CitySuggestion = {
+    name: string;
+    country: string;
+    state?: string;
+
+    lat:number;
+    lon:number;
+};
+
+export async function searchCities(query: string): Promise<CitySuggestion[]> {
+
+    if (query.trim().length < 1) {
+        return [];
+    }
+
+    try {
+        const response = await axios.get(`${GEO_URL}/direct`, {
+            params: {
+                q: query,
+                limit: 10,
+                appid: API_KEY,
+            }
+        });
+
+        return response.data.map((item: any) => ({
+            name: item.local_names?.en ?? item.name,
+            country: item.country,
+            state: item.state,
+            lat: item.lat,
+            lon: item.lon,
+        }));
+    } catch {
+        return [];
     }
 }

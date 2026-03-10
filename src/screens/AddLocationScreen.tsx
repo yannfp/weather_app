@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { addLocation } from "../services/locationService";
-import { fetchWeatherByCity } from "../services/weatherService";
+import { fetchWeatherByCity, searchCities, CitySuggestion } from "../services/weatherService";
 
 import { RootStackParamList } from "../types";
 
@@ -23,9 +23,35 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
 
   const [loading, setLoading] = useState(false);
 
-  const handleAdd = async () => {
+  const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const trimmed = cityName.trim();
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    if (cityName.trim().length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    debounceTimer.current = setTimeout(async () => {
+      const results = await searchCities(cityName);
+      setSuggestions(results);
+    }, 350);
+
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [cityName]);
+
+  const handleSelectSuggestion = (suggestion: CitySuggestion) => {
+    setCityName(suggestion.name);
+    setSuggestions([]);
+    handleAdd(suggestion.name);
+  };
+
+  const handleAdd = async (overrideName?: string) => {
+    const trimmed = (overrideName ?? cityName).trim();
     if (!trimmed) {
       setErrorMessage("Please enter a valid city name.");
       return;
@@ -33,6 +59,7 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
 
     setLoading(true);
     setErrorMessage("");
+    setSuggestions([]);
 
     try {
       const weather = await fetchWeatherByCity(trimmed);
@@ -47,13 +74,11 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
       navigation.goBack();
 
     } catch (error: any) {
-
       if (error.message === "This location is already saved.") {
-        setErrorMessage(`${cityName} is already in your location list.`);
+        setErrorMessage(`${trimmed} is already in your location list.`);
       } else {
         setErrorMessage(error.message);
       }
-
     } finally {
       setLoading(false);
     }
@@ -85,6 +110,8 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
               onSubmit={handleAdd}
               loading={loading}
               errorMessage={errorMessage}
+              suggestions={suggestions}
+              onSelectSuggestion={handleSelectSuggestion}
           />
 
         </View>
