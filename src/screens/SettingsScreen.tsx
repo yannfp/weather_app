@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
+import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
 
 import { commonStyles } from "../styles/common";
@@ -17,6 +18,7 @@ type SettingsScreenProps = {
 const SettingsScreen: React.FC<SettingsScreenProps> = () => {
 
     const { unit, setUnit, timeFormat, setTimeFormat } = useSettings();
+    const { signOut } = useAuth();
 
     return (
         <View style={[commonStyles.screenContainer, { backgroundColor: fixedColors.background }]}>
@@ -112,6 +114,14 @@ const SettingsScreen: React.FC<SettingsScreenProps> = () => {
                     </View>
                 </View>
 
+                <TouchableOpacity
+                    style={[styles.signOutButton]}
+                    onPress={signOut}
+                    activeOpacity={0.8}
+                >
+                    <Text style={styles.signOutText}>Sign out</Text>
+                </TouchableOpacity>
+
             </View>
         </View>
     );
@@ -173,6 +183,20 @@ const styles = StyleSheet.create({
         fontWeight: fontWeight.medium,
         color: fixedColors.subText,
         marginTop: 2,
+    },
+
+    signOutButton: {
+        marginTop: "auto",
+        paddingVertical: spacing.md,
+        borderRadius: radius.lg,
+        backgroundColor: "#FF3B30",
+        alignItems: "center",
+    },
+
+    signOutText: {
+        color: "#FFFFFF",
+        fontWeight: fontWeight.semibold,
+        fontSize: fontSize.md,
     },
 });
 

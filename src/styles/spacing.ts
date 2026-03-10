@@ -14,7 +14,7 @@ export const radius = {
   md: 16,
   lg: 20,
   xl: 24,
-  full: 999, // for pill shapes
+  full: 999,
 };
 
 export const fontSize = {

@@ -246,7 +246,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             }
         >
 
-          <HomeHeader themeColors={activeColors} onSignOut={signOut} onSettings={() => navigation.navigate("Settings")}/>
+          <HomeHeader themeColors={activeColors} onSettings={() => navigation.navigate("Settings")}/>
 
           {/* Main weather card */}
           {currentWeather && (
