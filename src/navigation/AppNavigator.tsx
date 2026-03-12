@@ -13,12 +13,14 @@ import AddLocationScreen from "../screens/AddLocationScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 
 import { RootStackParamList } from "../types";
+import {useBackground} from "../context/BackgroundContext";
 
 // Create the stack navigator with our TypeScript types
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
 
+    const { isNight } = useBackground();
     const { user, loading } = useAuth();
 
     // show loading spinner while checking auth state
@@ -34,10 +36,10 @@ const AppNavigator: React.FC = () => {
         <NavigationContainer>
             <Stack.Navigator
                 screenOptions={{
-                    // style the navigation header to match our theme
-                    headerStyle: { backgroundColor: fixedColors.background },
-                    headerTintColor: fixedColors.text,
+                    headerTransparent: true,
                     headerShadowVisible: false,
+                    headerTintColor: isNight ? "#FFFFFF" : fixedColors.text,
+                    headerStyle: { backgroundColor: "transparent" },
                 }}
             >
                 {user ? (
@@ -51,10 +53,12 @@ const AppNavigator: React.FC = () => {
                         <Stack.Screen
                             name="AddLocation"
                             component={AddLocationScreen}
+                            options={{ title: ""}}
                         />
                         <Stack.Screen
                             name="Settings"
                             component={SettingsScreen}
+                            options={{ title: ""}}
                         />
                     </>
                 ) : (

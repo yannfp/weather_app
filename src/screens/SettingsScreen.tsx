@@ -1,15 +1,18 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ImageBackground } from "react-native";
+import { BlurView } from "expo-blur";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useHeaderHeight } from "@react-navigation/elements";
 
 import { useAuth } from "../context/AuthContext";
 import { useSettings } from "../context/SettingsContext";
 
 import { commonStyles } from "../styles/common";
-import { fixedColors } from "../styles/color";
+import {fixedColors, nightColors} from "../styles/color";
 import { spacing, fontSize, fontWeight, radius } from "../styles/spacing";
 
 import { RootStackParamList } from "../types";
+import {useBackground} from "../context/BackgroundContext";
 
 type SettingsScreenProps = {
     navigation: NativeStackNavigationProp<RootStackParamList, "Settings">;
@@ -17,113 +20,122 @@ type SettingsScreenProps = {
 
 const SettingsScreen: React.FC<SettingsScreenProps> = () => {
 
+    const headerHeight = useHeaderHeight();
+
+    const { backgroundImage, isNight } = useBackground();
+    const activeColors = isNight ? nightColors : fixedColors;
+
     const { unit, setUnit, timeFormat, setTimeFormat } = useSettings();
     const { signOut } = useAuth();
 
     return (
-        <View style={[commonStyles.screenContainer, { backgroundColor: fixedColors.background }]}>
-            <View style={commonStyles.screenContent}>
+        <ImageBackground source={{ uri: backgroundImage }} style={{ flex: 1 }} resizeMode="cover">
+            <BlurView intensity={isNight ? 60 : 10} tint={isNight ? "dark" : "light"} style={StyleSheet.absoluteFill} />
 
-                {/* Title */}
-                <View style={styles.titleArea}>
-                    <Text style={[styles.title, { color: fixedColors.text }]}>Settings</Text>
-                </View>
+            <View style={[commonStyles.screenContainer, { paddingTop: headerHeight, backgroundColor: "transparent" }]}>
+                <View style={commonStyles.screenContent}>
 
-                {/* Temperature unit card */}
-                <View style={[commonStyles.card, { backgroundColor: fixedColors.cardBackground }]}>
-
-                    <Text style={[styles.sectionLabel, { color: fixedColors.subText }]}>
-                        Temperature unit
-                    </Text>
-
-                    {/* Side-by-side unit buttons */}
-                    <View style={styles.unitRow}>
-
-                        <TouchableOpacity
-                            style={[
-                                styles.unitButton,
-                                unit === "celsius" && styles.unitButtonActive,
-                            ]}
-                            onPress={() => setUnit("celsius")}
-                            activeOpacity={0.8}
-                        >
-                            <Text style={[
-                                styles.unitButtonText,
-                                unit === "celsius" && styles.unitButtonTextActive,
-                            ]}>
-                                °C
-                            </Text>
-                            <Text style={[
-                                styles.unitButtonLabel,
-                                unit === "celsius" && styles.unitButtonTextActive,
-                            ]}>
-                                Celsius
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[
-                                styles.unitButton,
-                                unit === "fahrenheit" && styles.unitButtonActive,
-                            ]}
-                            onPress={() => setUnit("fahrenheit")}
-                            activeOpacity={0.8}
-                        >
-                            <Text style={[
-                                styles.unitButtonText,
-                                unit === "fahrenheit" && styles.unitButtonTextActive,
-                            ]}>
-                                °F
-                            </Text>
-                            <Text style={[
-                                styles.unitButtonLabel,
-                                unit === "fahrenheit" && styles.unitButtonTextActive,
-                            ]}>
-                                Fahrenheit
-                            </Text>
-                        </TouchableOpacity>
+                    {/* Title */}
+                    <View style={styles.titleArea}>
+                        <Text style={[styles.title, { color: activeColors.text }]}>Settings</Text>
                     </View>
-                </View>
 
-                {/* Time Format Card */}
-                <View style={[commonStyles.card, { backgroundColor: fixedColors.cardBackground }]}>
-                    <Text style={[styles.sectionLabel, { color: fixedColors.subText }]}>
-                        Time format
-                    </Text>
+                    {/* Temperature unit card */}
+                    <View style={[commonStyles.card, { backgroundColor: activeColors.cardBackground }]}>
 
-                    <View style={styles.unitRow}>
-                        <TouchableOpacity
-                            style={[styles.unitButton, timeFormat === "12h" && styles.unitButtonActive]}
-                            onPress={() => setTimeFormat("12h")}
-                            activeOpacity={0.8}
-                        >
-                            <Text style={[styles.unitButtonText, timeFormat === "12h" && styles.unitButtonTextActive]}>
-                                12h
-                            </Text>
-                        </TouchableOpacity>
+                        <Text style={[styles.sectionLabel, { color: activeColors.subText }]}>
+                            Temperature unit
+                        </Text>
 
-                        <TouchableOpacity
-                            style={[styles.unitButton, timeFormat === "24h" && styles.unitButtonActive]}
-                            onPress={() => setTimeFormat("24h")}
-                            activeOpacity={0.8}
-                        >
-                            <Text style={[styles.unitButtonText, timeFormat === "24h" && styles.unitButtonTextActive]}>
-                                24h
-                            </Text>
-                        </TouchableOpacity>
+                        {/* Side-by-side unit buttons */}
+                        <View style={styles.unitRow}>
+
+                            <TouchableOpacity
+                                style={[
+                                    styles.unitButton,
+                                    unit === "celsius" && styles.unitButtonActive,
+                                ]}
+                                onPress={() => setUnit("celsius")}
+                                activeOpacity={0.8}
+                            >
+                                <Text style={[
+                                    styles.unitButtonText,
+                                    unit === "celsius" && styles.unitButtonTextActive,
+                                ]}>
+                                    °C
+                                </Text>
+                                <Text style={[
+                                    styles.unitButtonLabel,
+                                    unit === "celsius" && styles.unitButtonTextActive,
+                                ]}>
+                                    Celsius
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[
+                                    styles.unitButton,
+                                    unit === "fahrenheit" && styles.unitButtonActive,
+                                ]}
+                                onPress={() => setUnit("fahrenheit")}
+                                activeOpacity={0.8}
+                            >
+                                <Text style={[
+                                    styles.unitButtonText,
+                                    unit === "fahrenheit" && styles.unitButtonTextActive,
+                                ]}>
+                                    °F
+                                </Text>
+                                <Text style={[
+                                    styles.unitButtonLabel,
+                                    unit === "fahrenheit" && styles.unitButtonTextActive,
+                                ]}>
+                                    Fahrenheit
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
+
+                    {/* Time Format Card */}
+                    <View style={[commonStyles.card, { backgroundColor: activeColors.cardBackground }]}>
+                        <Text style={[styles.sectionLabel, { color: activeColors.subText }]}>
+                            Time format
+                        </Text>
+
+                        <View style={styles.unitRow}>
+                            <TouchableOpacity
+                                style={[styles.unitButton, timeFormat === "12h" && styles.unitButtonActive]}
+                                onPress={() => setTimeFormat("12h")}
+                                activeOpacity={0.8}
+                            >
+                                <Text style={[styles.unitButtonText, timeFormat === "12h" && styles.unitButtonTextActive]}>
+                                    12h
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.unitButton, timeFormat === "24h" && styles.unitButtonActive]}
+                                onPress={() => setTimeFormat("24h")}
+                                activeOpacity={0.8}
+                            >
+                                <Text style={[styles.unitButtonText, timeFormat === "24h" && styles.unitButtonTextActive]}>
+                                    24h
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.signOutButton]}
+                        onPress={signOut}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.signOutText}>Sign out</Text>
+                    </TouchableOpacity>
+
                 </View>
-
-                <TouchableOpacity
-                    style={[styles.signOutButton]}
-                    onPress={signOut}
-                    activeOpacity={0.8}
-                >
-                    <Text style={styles.signOutText}>Sign out</Text>
-                </TouchableOpacity>
-
             </View>
-        </View>
+        </ImageBackground>
     );
 }
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView } from "react-native";
 
 import { ThemeColors } from "../types";
 
@@ -69,7 +69,12 @@ const CityInput: React.FC<CityInputProps> = ({themeColors, value, onChangeText, 
 
             {/* Suggestions dropdown */}
             {showSuggestions && (
-                <View style={[styles.suggestionsContainer, { borderColor: themeColors.primary, backgroundColor: themeColors.cardBackground }]}>
+                <ScrollView
+                    style={[styles.suggestionsContainer, { borderColor: themeColors.primary, backgroundColor: themeColors.cardBackground }]}
+                    keyboardShouldPersistTaps="handled"  // ← important: lets taps on suggestions work while keyboard is open
+                    nestedScrollEnabled
+                    showsVerticalScrollIndicator={false}
+                >
                     {suggestions.map((suggestion, index) => (
                         <TouchableOpacity
                             key={`${suggestion.lat}-${suggestion.lon}`}
@@ -92,7 +97,7 @@ const CityInput: React.FC<CityInputProps> = ({themeColors, value, onChangeText, 
                             </Text>
                         </TouchableOpacity>
                     ))}
-                </View>
+                </ScrollView>
             )}
 
             {/* inline error */}
@@ -102,7 +107,7 @@ const CityInput: React.FC<CityInputProps> = ({themeColors, value, onChangeText, 
 
             {/* button to add location */}
             <TouchableOpacity
-                style={[styles.submitButton, commonStyles.button, { backgroundColor: themeColors.primary}, loading && commonStyles.buttonLoading]}
+                style={[commonStyles.button, { backgroundColor: themeColors.primary === "#FFFFFF" ? "#333333" : themeColors.primary }, loading && commonStyles.buttonLoading ]}
                 onPress={onSubmit}
                 disabled={loading}
                 activeOpacity={0.85}
@@ -124,6 +129,7 @@ const CityInput: React.FC<CityInputProps> = ({themeColors, value, onChangeText, 
 const styles = StyleSheet.create({
 
     suggestionsContainer: {
+        maxHeight: 220,
         borderWidth: 1.5,
         borderTopWidth: 0,
         borderBottomLeftRadius: radius.md,

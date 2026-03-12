@@ -66,6 +66,8 @@ export type WeatherData = {
     sunset: number;
 
     temperature: number;
+    tempMin: number;
+    tempMax: number;
     feelsLike: number;
 
     humidity: number;
@@ -110,6 +112,16 @@ export type NewLocation = {
 
     lat?: number;
     lon?: number;
+};
+
+// FORECAST
+export type ForecastDay = {
+    date: string;
+    avgTemp: number;
+    minTemp: number;
+    maxTemp: number;
+    condition: string;
+    description: string;
 };
 
 // THEME TYPES

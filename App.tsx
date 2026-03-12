@@ -4,6 +4,7 @@ import { AuthProvider } from "./src/context/AuthContext";
 import { ThemeProvider } from "./src/context/ThemeContext";
 import AppNavigator from "./src/navigation/AppNavigator";
 import {SettingsProvider} from "./src/context/SettingsContext";
+import {BackgroundProvider} from "./src/context/BackgroundContext";
 
 // app is wrapped in providers so all child components can access:
 // - AuthProvider: who is logged in
@@ -12,13 +13,15 @@ import {SettingsProvider} from "./src/context/SettingsContext";
 export default function App() {
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <AuthProvider>
-                <ThemeProvider>
-                    <SettingsProvider>
-                        <AppNavigator/>
-                    </SettingsProvider>
-                </ThemeProvider>
-            </AuthProvider>
+            <BackgroundProvider>
+                <AuthProvider>
+                    <ThemeProvider>
+                        <SettingsProvider>
+                            <AppNavigator/>
+                        </SettingsProvider>
+                    </ThemeProvider>
+                </AuthProvider>
+            </BackgroundProvider>
         </GestureHandlerRootView>
     );
 }

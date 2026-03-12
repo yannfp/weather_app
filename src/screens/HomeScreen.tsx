@@ -15,10 +15,10 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
 
-import { useAuth } from "../context/AuthContext";
+import { useBackground } from "../context/BackgroundContext";
 import { useTheme } from "../context/ThemeContext";
 
-import { fetchWeatherByCity, fetchWeatherByCoords } from "../services/weatherService";
+import { fetchWeatherByCity, fetchWeatherByCoords, fetchForecast } from "../services/weatherService";
 import { getSavedLocations, deleteLocation, addLocation } from "../services/locationService";
 
 import { getThemeFromWeather, getBackgroundImage, isNightTime } from "../utils/weatherHelpers";
@@ -32,7 +32,7 @@ import HomeHeader from "../components/HomeHeader";
 import LocationRow from "../components/LocationRow";
 import EmptyLocations from "../components/EmptyLocations";
 
-import {WeatherData, SavedLocation, RootStackParamList, WeatherTheme, ThemeColors} from "../types";
+import { WeatherData, ForecastDay, SavedLocation, RootStackParamList, WeatherTheme } from "../types";
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, "Home">;
@@ -40,18 +40,16 @@ type HomeScreenProps = {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
-  const { signOut } = useAuth();
   const { setTheme } = useTheme();
+  const { backgroundImage, isNight, setBackground } = useBackground();
 
   const [locations, setLocations] = useState<SavedLocation[]>([]);
   const [weatherMap, setWeatherMap] = useState<Record<string, WeatherData>>({});
   const [currentWeather, setCurrentWeather] = useState<WeatherData | null>(null);
-
-  const [isNight, setIsNight] = useState<boolean>(false);
+  const [forecast, setForecast] = useState<ForecastDay[]>([]);
 
   const [currentLocationCity, setCurrentLocationCity] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("Hong Kong");
-  const [ backgroundImage, setBackgroundImage ] = useState<string>(getBackgroundImage("default"));
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -82,12 +80,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     return weatherMap;
   };
 
-  const applyWeather = (weather: WeatherData) => {
+  const applyWeather = async (weather: WeatherData) => {
     const night = isNightTime(weather.sunrise, weather.sunset);
+
     setCurrentWeather(weather);
-    setIsNight(night);
+    setBackground(getBackgroundImage(weather.condition), night);
     setTheme(getThemeFromWeather(weather.condition) as WeatherTheme);
-    setBackgroundImage(getBackgroundImage(weather.condition));
+
+    // fetch forecast for the new city
+    const days = await fetchForecast(weather.cityName);
+    setForecast(days);
   };
 
   // load GPS coordinates then weather
@@ -254,12 +256,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                   cityName={currentWeather.cityName}
                   country={currentWeather.country}
                   temperature={currentWeather.temperature}
+                  tempMin={currentWeather.tempMin}
+                  tempMax={currentWeather.tempMax}
                   condition={currentWeather.condition}
                   description={currentWeather.description}
                   humidity={currentWeather.humidity}
                   windSpeed={currentWeather.windSpeed}
                   feelsLike={currentWeather.feelsLike}
                   timezone={currentWeather.timezone}
+                  forecast={forecast}
                   colors={activeColors}
               />
           )}
