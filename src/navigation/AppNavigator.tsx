@@ -53,12 +53,12 @@ const AppNavigator: React.FC = () => {
                         <Stack.Screen
                             name="AddLocation"
                             component={AddLocationScreen}
-                            options={{ title: ""}}
+                            options={{ title: "", headerBackTitle: "" }}
                         />
                         <Stack.Screen
                             name="Settings"
                             component={SettingsScreen}
-                            options={{ title: ""}}
+                            options={{ title: "", headerBackTitle: "" }}
                         />
                     </>
                 ) : (

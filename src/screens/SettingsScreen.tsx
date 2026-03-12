@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ImageBackground } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform } from "react-native";
 import { BlurView } from "expo-blur";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -32,8 +32,11 @@ const SettingsScreen: React.FC<SettingsScreenProps> = () => {
         <ImageBackground source={{ uri: backgroundImage }} style={{ flex: 1 }} resizeMode="cover">
             <BlurView intensity={isNight ? 60 : 10} tint={isNight ? "dark" : "light"} style={StyleSheet.absoluteFill} />
 
-            <View style={[commonStyles.screenContainer, { paddingTop: headerHeight, backgroundColor: "transparent" }]}>
-                <View style={commonStyles.screenContent}>
+            <KeyboardAvoidingView
+                style={[commonStyles.screenContainer, { backgroundColor: "transparent" }]}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+            >
+                <View style={[commonStyles.screenContent, { paddingTop: headerHeight }]}>
 
                     {/* Title */}
                     <View style={styles.titleArea}>
@@ -134,7 +137,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = () => {
                     </TouchableOpacity>
 
                 </View>
-            </View>
+            </KeyboardAvoidingView>
         </ImageBackground>
     );
 }

@@ -107,7 +107,7 @@ const CityInput: React.FC<CityInputProps> = ({themeColors, value, onChangeText, 
 
             {/* button to add location */}
             <TouchableOpacity
-                style={[commonStyles.button, { backgroundColor: themeColors.primary === "#FFFFFF" ? "#333333" : themeColors.primary }, loading && commonStyles.buttonLoading ]}
+                style={[commonStyles.button, { backgroundColor: themeColors.primary === "#FFFFFF" ? "#333333" : themeColors.primary, marginTop: 10 }, loading && commonStyles.buttonLoading ]}
                 onPress={onSubmit}
                 disabled={loading}
                 activeOpacity={0.85}
