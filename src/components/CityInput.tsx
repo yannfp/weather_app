@@ -9,6 +9,7 @@ import { getCountryName } from "../utils/weatherHelpers";
 
 import { commonStyles } from "../styles/common";
 import { spacing, fontSize, fontWeight, radius } from "../styles/spacing";
+import {nightColors} from "../styles/color";
 
 type CityInputProps = {
     themeColors: ThemeColors;
@@ -18,6 +19,8 @@ type CityInputProps = {
     onChangeText: (value: string) => void;
     onSubmit: () => void;
 
+    isNight?: boolean;
+
     loading: boolean;
 
     errorMessage: string;
@@ -26,9 +29,10 @@ type CityInputProps = {
     onSelectSuggestion: (suggestion: CitySuggestion) => void;
 };
 
-const CityInput: React.FC<CityInputProps> = ({themeColors, value, onChangeText, onSubmit, loading, errorMessage, suggestions, onSelectSuggestion}) => {
+const CityInput: React.FC<CityInputProps> = ({themeColors, value, onChangeText, onSubmit, isNight, loading, errorMessage, suggestions, onSelectSuggestion}) => {
 
     const [focused, setFocused] = React.useState(false);
+
     const showSuggestions = suggestions.length > 0 && focused;
 
     return (
@@ -41,6 +45,7 @@ const CityInput: React.FC<CityInputProps> = ({themeColors, value, onChangeText, 
                     commonStyles.input,
                     {
                         color: themeColors.text,
+                        backgroundColor: themeColors.cardBackground,
                         borderColor: errorMessage ? "#FF3B30" : focused ? themeColors.primary : themeColors.accent,
                         borderBottomLeftRadius: showSuggestions ? 0 : undefined,
                         borderBottomRightRadius: showSuggestions ? 0 : undefined,
@@ -50,6 +55,7 @@ const CityInput: React.FC<CityInputProps> = ({themeColors, value, onChangeText, 
 
                 placeholder="e.g. Tokyo, Paris, London"
                 placeholderTextColor={themeColors.subText}
+                keyboardAppearance={isNight ? "dark" : "light"}
 
                 value={value}
 

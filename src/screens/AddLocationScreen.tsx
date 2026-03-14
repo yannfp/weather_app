@@ -147,6 +147,7 @@ const AddLocationScreen: React.FC<Props> = ({ navigation }) => {
                   setErrorMessage("");
                 }}
                 onSubmit={handleAdd}
+                isNight={isNight}
                 loading={loading}
                 errorMessage={errorMessage}
                 suggestions={suggestions}
