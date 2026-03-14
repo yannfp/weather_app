@@ -19,7 +19,7 @@ import { useBackground } from "../context/BackgroundContext";
 import { useTheme } from "../context/ThemeContext";
 
 import { fetchWeatherByCity, fetchWeatherByCoords, fetchForecast } from "../services/weatherService";
-import { getSavedLocations, deleteLocation, addLocation } from "../services/locationService";
+import { getSavedLocations, deleteLocation } from "../services/locationService";
 
 import { getThemeFromWeather, getBackgroundImage, isNightTime } from "../utils/weatherHelpers";
 
@@ -47,6 +47,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [weatherMap, setWeatherMap] = useState<Record<string, WeatherData>>({});
   const [currentWeather, setCurrentWeather] = useState<WeatherData | null>(null);
   const [forecast, setForecast] = useState<ForecastDay[]>([]);
+
+  const [currentLocationData, setCurrentLocationData] = useState<SavedLocation | null>(null);
 
   const [currentLocationCity, setCurrentLocationCity] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("Hong Kong");
@@ -109,39 +111,36 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
           // fetch the weather of the current location
           const weather = await fetchWeatherByCoords(latitude, longitude);
-          applyWeather(weather);
+          await applyWeather(weather);
           setSelectedCity(weather.cityName);
           setCurrentLocationCity(weather.cityName);
 
-          // get all saved locations
-          const savedLocs = await loadLocations();
+          setCurrentLocationData({
+            id: "current",
+            user_id: "",
+            city_name: weather.cityName,
+            country_code: weather.country,
+            lat: latitude,
+            lon: longitude,
+            created_at: "",
+          });
 
-          // only save if not already in the list
-          const alreadySaved = savedLocs.some((l) => l.city_name === weather.cityName);
-          if (!alreadySaved) {
-            try {
-              await addLocation({
-                city_name: weather.cityName,
-                country_code: weather.country,
-                lat: latitude,
-                lon: longitude,
-              });
-
-              await loadLocations();
-            } catch {}
-          }
-
+          setWeatherMap((prev) => ({ ...prev, [weather.cityName]: weather }));
         } else {
           // permission denied — fall back to default city
-          const weather = await fetchWeatherByCity("Hong Kong");
-          applyWeather(weather);
+          const savedLocs = await loadLocations();
+          const fallbackCity = savedLocs[0]?.city_name ?? "Hong Kong";
+          const weather = await fetchWeatherByCity(fallbackCity);
+          await applyWeather(weather);
           setSelectedCity(weather.cityName);
         }
 
       } catch {
         // GPS failed — fall back to default city
-        const weather = await fetchWeatherByCity("Hong Kong");
-        applyWeather(weather);
+        const savedLocs = await loadLocations();
+        const fallbackCity = savedLocs[0]?.city_name ?? "Hong Kong";
+        const weather = await fetchWeatherByCity(fallbackCity);
+        await applyWeather(weather);
         setSelectedCity(weather.cityName);
       }
 
@@ -149,7 +148,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       const locations = await loadLocations();
       if (locations.length > 0) {
         const weatherMap = await loadAllWeather(locations);
-        setWeatherMap(weatherMap);
+        setWeatherMap((prev) => ({ ...prev, ...weatherMap }));
       }
 
       setLoading(false);
@@ -165,7 +164,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           const locations = await loadLocations();
           if (locations.length > 0) {
             const wm = await loadAllWeather(locations);
-            setWeatherMap(wm);
+            setWeatherMap((prev) => ({ ...prev, ...weatherMap }));
           }
         };
 
@@ -178,13 +177,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     try {
       const weather = await fetchWeatherByCity(selectedCity);
-      applyWeather(weather);
+      await applyWeather(weather);
     } catch {}
 
     const locations = await loadLocations();
     const weatherMap = await loadAllWeather(locations);
 
-    setWeatherMap(weatherMap);
+    setWeatherMap((prev) => ({ ...prev, ...weatherMap }));
     setRefreshing(false);
   };
 
@@ -193,28 +192,35 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     try {
       const weather = weatherMap[cityName] || (await fetchWeatherByCity(cityName));
-      applyWeather(weather)
+      await applyWeather(weather)
     } catch (e: any) {
       Alert.alert("Error", e.message);
     }
   };
 
-  // Direct delete — no confirmation needed since swipe is intentional
   const handleDelete = async (loc: SavedLocation) => {
     try {
       await deleteLocation(loc.id);
-
       setLocations((prev) => prev.filter((l) => l.id !== loc.id));
 
-      // If user was currently on this location switch back to the user's current location
-      if (loc.city_name == selectedCity) {
-        await selectCity(currentLocationCity);
+      if (loc.city_name === selectedCity) {
+        // find first remaining location after deletion
+        const remaining = displayLocations.filter((l) => l.id !== loc.id);
+        if (remaining.length > 0) {
+          await selectCity(remaining[0].city_name);
+        }
       }
-
     } catch (e: any) {
       Alert.alert("Error", e.message);
     }
   };
+
+  const displayLocations: SavedLocation[] = currentLocationData
+      ? [
+        currentLocationData,
+        ...locations.filter((l) => l.city_name !== currentLocationData.city_name),
+      ]
+      : locations;
 
   if (loading) {
     return (
@@ -284,27 +290,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </View>
 
           {/* Location list */}
-          {locations.length === 0 ? (
-              <EmptyLocations themeColors={activeColors}/>
+          {displayLocations.length === 0 ? (
+              <EmptyLocations themeColors={activeColors} />
           ) : (
-              // sort the locations so the current location is always first
-              [...locations]
-                  .sort((a, b) => {
-                    if (a.city_name == currentLocationCity) return -1;
-                    if (b.city_name == currentLocationCity) return 1;
-                    return 0;
-                  })
-                  .map((loc) => {
-                    return <LocationRow key={loc.id}
-                                        location={loc}
-                                        weather={weatherMap[loc.city_name]}
-                                        themeColors={activeColors}
-                                        isSelected={loc.city_name == selectedCity}
-                                        isCurrentLocation={loc.city_name == currentLocationCity}
-                                        onPress={() => selectCity(loc.city_name)}
-                                        onDelete={() => handleDelete(loc)}
-                    />
-                  })
+              displayLocations.map((loc) => (
+                  <LocationRow
+                      key={loc.id}
+                      location={loc}
+                      weather={weatherMap[loc.city_name]}
+                      themeColors={activeColors}
+                      isSelected={loc.city_name === selectedCity}
+                      isCurrentLocation={loc.city_name === currentLocationCity}
+                      onPress={() => selectCity(loc.city_name)}
+                      onDelete={() => handleDelete(loc)}
+                  />
+              ))
           )}
 
           <View style={{ height: 40 }} />
