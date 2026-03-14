@@ -42,7 +42,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ themeColors, onSettings }) => {
                 </Text>
            </View>
 
-            <Pressable onPress={onSettings} style={styles.iconButton}>
+
+            <Pressable onPress={onSettings} style={styles.iconButton} testID="settings-button">
                 <Ionicons name="settings-outline" size={24} color={themeColors.text} />
             </Pressable>
 
