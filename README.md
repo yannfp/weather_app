@@ -1,4 +1,4 @@
-# Skies — Weather App
+# Weather App
 
 A mobile weather app built with React Native and Expo. Shows current conditions based on your GPS location, lets you save cities, and adapts its look to day/night and weather conditions.
 
